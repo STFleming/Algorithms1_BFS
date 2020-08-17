@@ -50,6 +50,7 @@ var graph_data = [];
 
 var visited = [];
 var bfs_queue = [];
+var up_next = [];
 
 // NOTE: NONE OF THIS IS OPTIMISED. THE CODE WAS WRITTEN INEFFICIENTLY TO DEMONSTRATE THE BFS ALGORITHM AS I DID NOT HAVE MUCH FREE TIME TO WORK ON IT FOR THE INTERVIEW PRESENTATION :)
 
@@ -57,7 +58,7 @@ var bfs_queue = [];
 // doing a linear walk over a visited list every node consideration is ridiculous but I'm in a hurry
 function hasVisited(node_id) {
 	for(var v in visited){
-		if(node_id == v)
+		if(node_id == visited[v])
 			return true;
 	}
 	return false;
@@ -99,17 +100,23 @@ function deque() {
 // highlights all unvisited neighbours
 function highlightNextUp(node_id) {
 	var possible = neighbours(node_id);
-	console.log(possible);
 	for(var i in possible) {
 		if(!hasVisited(possible[i])) {
 			d3.select("#node_"+possible[i]).style("fill", next_up_colour); 	
+			up_next.push(possible[i]);
 		}
 	}
 }
 
 // step the BFS forward one position
 function stepBFS() {
-	
+	var curr_timestep = up_next;
+	up_next = [];
+	for(var i in curr_timestep) {
+		visited.push(curr_timestep[i]);
+		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
+		highlightNextUp(curr_timestep[i]);
+	}
 }
 
 // initialise the BFS
@@ -172,6 +179,7 @@ d3.json(graph_json, function(error, graph) {
       .text(function(d) {return d.id; } );
 
    initBFS();
+   stepBFS();
 
 });
 
