@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/simple.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section><h3>Preventing User Error</h3>
+								 <img src="imgs/QR.png" height=300px width=300px> 
+									<h4> http://stfleming.github.io/icl-eie1-ucis-preventing-user-error/ </h4>
+				</section>
+				<section><h3>Human error? No, bad design.</h3></section>
+				<section data-background-image="imgs/Swiss_cheese_model_of_accident_causation.png" data-background-size="contain"></section>
+				<section data-markdown>
+	_"a common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools"_
+
+-- Douglas Adams
+				</section>
+				<section><h3>Root Cause Analysis</h3></section>
+				<section data-markdown>
+- **Air Force:** It was pilot error -- the pilot failed to take corrective action
+- **Inspector General:** That's because the pilot was probably unconscious 
+- **Air Force:** So you agree, the pilot failed to correct the problem
+				</section>
+				<section data-markdown>
+### Outline
+* classification of errors
+* state machines
+* some terrible calculators
+				</section>
+				<section data-markdown>
+### Outline
+* **classification of errors**
+* state machines
+* some terrible calculators
+				</section>
+				<section data-markdown>
+### Errors
+* Slips - action performed is not the same as the one intended
+* Mistakes - wrong goal or plan was formed
+				</section>
+				<section data-background-image="imgs/slips_and_mistakes.png" data-background-size="contain"></section>
+<!--				<section>
+<h3>Rule-based Mistakes</h3>
+<img src="imgs/minimum_speed.png" height=350px/>
+				</section>
+				<section>
+<h3>Knowledge-based Mistakes</h3>
+<img src="imgs/gimli_glider.jpg" height=350px/>
+				</section>
+--!>
+				<section data-background-image="imgs/errors_in_the_action_cycle.jpg" data-background-size="contain"></section>
+<!--				<section data-markdown>
+### Action-slips 
+* capture-based slips
+* description-similarity slip
+				</section>
+--!>
+				<section data-background-image="imgs/Slips.svg" data-background-size="contain"></section>
+
+				<section><b>Calculator 1:</b> a calculator</section>
+				<section data-background-iframe="d3-calculator/v1_basicCalc/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 2:</b> a calculator with signifiers</section>
+				<section data-background-iframe="d3-calculator/v1_highlightSignifiers/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 3:</b> a calculator with an unconventional layout</section>
+				<section data-background-iframe="d3-calculator/v1_unconventionalArrangement_phone/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 4:</b> another calculator with an unconventional layout</section>
+				<section data-background-iframe="d3-calculator/v1_unconventionalArrangement_flippedphone/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 5:</b> yet another calculator with an unconventional layout</section>
+				<section data-background-iframe="d3-calculator/v1_unconventionalArrangement_tworows/index.html" data-background-interactive></section>
+
+				<section data-background-image="imgs/fitts_law.svg" data-background-size="contain"></section>
+
+				<section><b>Calculator 6:</b> more unconventional layouts?</section>
+				<section data-background-iframe="d3-calculator/v1_unconventionalArrangement_vertical/index.html" data-background-interactive></section>
+				
+
+				<section data-markdown>
+### capture-slips 
+* conforming to conventions is important
+* avoid having procedures follow the same opening sequence
+				</section>
+
+				<section> <h3>Memory-Lapses</h3> </section>
+
+				<section><b>Calculator 7:</b> the friendly advice calculator </section>
+				<section data-background-iframe="d3-calculator/v1_popups/index.html" data-background-interactive></section>
+				<section data-background-image="https://media.giphy.com/media/BHkzSycc5fZrG/giphy.gif" data-background-size="contain"></section>
+				<section data-background-image="imgs/sterile_cockpit.jpg" data-background-size="contain"></section>
+
+				<section><b>Calculator 8:</b> the polite friendly advice calculator </section>
+				<section data-background-iframe="d3-calculator/v1_popups_polite/index.html" data-background-interactive></section>
+
+
+				<section> <h3>State Machines for design</h3> </section>
+				<section data-background-image="imgs/bulb_state_machine.svg" data-background-size="contain"></section>
+				<section data-background-image="imgs/trafficlight_state_machine.svg" data-background-size="contain"></section>
+				
+
+				<section data-markdown>
+### Calculator state machine
+* numbers (**num**)
+	- 0, 1, 2, 3, 4, 5, 6, 7, 8, 9	
+* operators (**op**)
+	- +, -, *, /
+* clear command (**c**)
+* equal operator (**=**)
+				</section>
+				<section><b>Calculator 9:</b> a calculator with an interactive state machine </section>
+				<section data-background-iframe="d3-calculator/v1_stateMachineCalc_basic/index.html" data-background-interactive></section>
+
+
+				<section><b>Calculator 10:</b> the mode calculator </section>
+				<section data-background-iframe="d3-calculator/v1_modeCalc/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 11:</b> the mode calculator state machine </section>
+				<section data-background-iframe="d3-calculator/v1_modeCalc_stateMachine/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 12:</b> the mode switch calculator </section>
+				<section data-background-iframe="d3-calculator/v1_modeCalcSwitch/index.html" data-background-interactive></section>
+
+				<section data-background-image="imgs/hamburger_menu.svg" data-background-size="contain"></section>
+				<section data-background-image="https://media.giphy.com/media/lm5ftQkk1kXK0/giphy.gif" data-background-size="contain"></section>
+				<section data-background-image="imgs/mystery_meat.svg" data-background-size="contain"></section>
+
+				<section><h3>description-similarity slips</b></section>
+				<section data-background-iframe="d3-calculator/v1_basicCalc/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 13:</b> the calculator with different buttons</section>
+				<section data-background-iframe="d3-calculator/v1_buttonDifferentiator/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 14:</b> the calculator with a more distinct clear button</section>
+				<section data-background-iframe="d3-calculator/v1_clearButtonModifications/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 15:</b> the calculator with a more distinct clear button and more</section>
+				<section data-background-iframe="d3-calculator/v1_clearButtonModifications_redAlert/index.html" data-background-interactive></section>
+
+				<section><h3><b>Memory Lapses: </b>making the internal state visible</b></section>
+				<section data-background-iframe="d3-calculator/v1_stateMachineCalc_basic_newButtons/index.html" data-background-interactive></section>
+				<section><h3><b>Constraints:</b> forcing function</section>
+				<section><b>Calculator 16:</b> a calculator with constraints based on the internal state</section>
+				<section data-background-iframe="d3-calculator/v2_constrainedCalc_newbuttons/index.html" data-background-interactive></section>
+
+				<section><b>Calculator 17:</b> a calculator where internal state is even more explicit</section>
+				<section data-background-iframe="d3-calculator/v3_visibleStateCalc_newbuttons/index.html" data-background-interactive></section>
+
+				<section><h3>the importance of undo</b></section>
+				<section><b>Calculator 18:</b> the undo calculator</section>
+				<section data-background-iframe="d3-calculator/v3_undoCalc/index.html" data-background-interactive></section>
+
+				<section data-markdown>
+### Conclusion
+* Errors 
+	- slips
+	- mistakes	
+* Slips 
+	- Capture Slips (**conventions**, **different sequences**) 
+	- Description Slips (**different buttons**)
+	- Mode Slips (**avoid**, **reduce friction**)
+	- Memory lapses (**interruptions**, **reduce steps**)
+* State Machines 
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
