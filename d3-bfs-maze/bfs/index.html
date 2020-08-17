@@ -85,6 +85,7 @@ function resetBFS() {
 		d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
 	}
 	visited = [];
+	up_next = [];
 }
 
 // enque a node for processing in the next BFS step
@@ -164,6 +165,7 @@ d3.json(graph_json, function(error, graph) {
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", node_size)
+      .on("click", function(d) { start_node_id = d.id; initBFS(); })
       .style("stroke", "black")
       .style("stroke-width", 2)
       .style("fill", unvisited_colour );
@@ -179,7 +181,15 @@ d3.json(graph_json, function(error, graph) {
       .text(function(d) {return d.id; } );
 
    initBFS();
-   stepBFS();
+
+   var step_button = svg.append("rect")
+	                .attr("x", 50)
+	                .attr("y", 50)
+	                .attr("height", 20)
+	                .attr("width", 60)
+			.style("fill", "gainsboro")
+	                .on("click", stepBFS);
+
 
 });
 
