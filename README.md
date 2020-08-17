@@ -1,3 +1,3 @@
-##EIE1 UCIS evaluation
+# Breadth First Search
 
-This lecture explores how to use the knowlege previously presented in the course to evaluate whether a design is effective or not.
+Lecture on breadth first search graph traversal
