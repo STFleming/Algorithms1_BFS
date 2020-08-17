@@ -34,6 +34,8 @@ var node_size = 25;
 var force_strength = -360;
 var link_width = 3;
 
+var start_node_id = 5;
+
 // maze.json
 
 // Use a force layout to plot the graph
@@ -44,9 +46,86 @@ var svg = d3.select("svg"),
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+var graph_data = [];
+
+var visited = [];
+var bfs_queue = [];
+
+// NOTE: NONE OF THIS IS OPTIMISED. THE CODE WAS WRITTEN INEFFICIENTLY TO DEMONSTRATE THE BFS ALGORITHM AS I DID NOT HAVE MUCH FREE TIME TO WORK ON IT FOR THE INTERVIEW PRESENTATION :)
+
+// returns true if a node has already been visited
+// doing a linear walk over a visited list every node consideration is ridiculous but I'm in a hurry
+function hasVisited(node_id) {
+	for(var v in visited){
+		if(node_id == v)
+			return true;
+	}
+	return false;
+}
+
+// when provided with a node returns all the nodes connected to it
+function neighbours(node_id) {
+	n = []; // the list of neighbours of node_id
+	for(var l in graph_data.links) {
+		if(graph_data.links[l].source.id == node_id) {
+			n.push(graph_data.links[l].target.id);
+		}
+		if(graph_data.links[l].target.id == node_id) {
+			n.push(graph_data.links[l].source.id);
+		}
+	}
+	return n;
+}
+
+
+// reset the BFS
+function resetBFS() {
+	for(var node in graph_data.nodes) {
+		d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
+	}
+	visited = [];
+}
+
+// enque a node for processing in the next BFS step
+function enqueBFS(node_id) {
+
+}
+
+// deque a node for processing in the next BFS step
+function deque() {
+
+}
+
+// highlights all unvisited neighbours
+function highlightNextUp(node_id) {
+	var possible = neighbours(node_id);
+	console.log(possible);
+	for(var i in possible) {
+		if(!hasVisited(possible[i])) {
+			d3.select("#node_"+possible[i]).style("fill", next_up_colour); 	
+		}
+	}
+}
+
+// step the BFS forward one position
+function stepBFS() {
+	
+}
+
+// initialise the BFS
+function initBFS() {
+	resetBFS();
+	d3.select("#node_"+start_node_id).style("fill", visited_colour);
+	visited.push(start_node_id);
+	highlightNextUp(start_node_id);
+}
+
+
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
+  graph_data = graph;
+
   var simulation = d3.forceSimulation(graph.nodes)
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", d3.forceManyBody().strength(force_strength))
@@ -74,6 +153,7 @@ d3.json(graph_json, function(error, graph) {
       .selectAll("circle")
       .data(graph.nodes)
       .enter().append("circle")
+      .attr("id", function(d) { return "node_" + d.id; })
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", node_size)
@@ -90,6 +170,8 @@ d3.json(graph_json, function(error, graph) {
       .attr("x", function(d) { return d.x - 10; })
       .attr("y", function(d) { return d.y - 5; })
       .text(function(d) {return d.id; } );
+
+   initBFS();
 
 });
 
