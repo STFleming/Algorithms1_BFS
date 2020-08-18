@@ -128,6 +128,43 @@ function initBFS() {
 	highlightNextUp(start_node_id);
 }
 
+// Adds a button that when triggered executes func()
+function addButton(x, y, text_in, func) {
+   var button_width = 80;
+   var button_height = 30;
+
+  var button_text = svg.append("text")
+      .attr("x", x + button_width/4 - text_in.length + 5)
+      .attr("y", y + button_height/2 + 4)
+      .style("font-family", "serif")
+      .style("font-size", 18)
+      .text(text_in);
+
+   var button = svg.append("rect")
+      .attr("x", x)
+      .attr("y", y)
+      .attr("height", button_height)
+      .attr("width", button_width)
+      .style("fill", "white")
+      .style("stroke-width", 2)
+      .style("stroke", "black")
+      .style("opacity", 0.3)
+      .on("mouseover", function() { d3.select(this).style("fill", next_up_colour); d3.select(this).style("opacity", 0.3); })
+      .on("mouseout",  function() { d3.select(this).style("fill", "white"); })
+      .on("click", func);
+
+}
+
+// Adds a label to the diagram
+function addLabel(x, y, text_in) {
+	svg.append("text")
+	   .attr("x", x)
+	   .attr("y", y)
+           .style("font-family", "serif")
+           .style("font-size", 22)
+           .style("text-decoration", "underline")
+	   .text(text_in);
+}
 
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
@@ -182,14 +219,10 @@ d3.json(graph_json, function(error, graph) {
 
    initBFS();
 
-   var step_button = svg.append("rect")
-	                .attr("x", 50)
-	                .attr("y", 50)
-	                .attr("height", 20)
-	                .attr("width", 60)
-			.style("fill", "gainsboro")
-	                .on("click", stepBFS);
-
+   // control buttons
+   addLabel(50,35,"Controls");
+   addButton(150, 15, "step()", stepBFS); 
+   addButton(250, 15, "reset()", resetBFS); 
 
 });
 
