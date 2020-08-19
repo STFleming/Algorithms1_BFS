@@ -72,14 +72,18 @@ function visShuffleAlong() {
 	for (var i = vis_queue.length -1; i>=0; i--) {
 		console.log("shuffling along " + vis_queue[i] + " to " + (x_pos + queue_item_w + queue_item_spacing) );
 		d3.select("#qBox_"+vis_queue[i])
+		  .transition()
 		  .attr("x", function(d) {
 			  return x_pos + queue_item_w + queue_item_spacing;
-		  });
+		  })
+		  .duration(250);
 
 		d3.select("#qText_"+vis_queue[i])
+		  .transition()
 		  .attr("x", function(d) { 
 			  return x_pos + queue_item_w + queue_item_spacing + queue_item_w/4;
-		  });
+		  })
+		  .duration(250);
 
 		x_pos = x_pos + queue_item_w + queue_item_spacing;
 	}
@@ -100,24 +104,28 @@ function visAddItem(node_id){
 
    visShuffleAlong();
 
-   svg.append("rect")
-      .attr("id", "qBox_"+node_id)
-      .attr("x", queue_x)
-      .attr("y", queue_y)
-      .attr("height", queue_item_h)
-      .attr("width", queue_item_w)
-      .style("fill", "white")
-      .style("stroke-width", 1)
-      .style("stroke", "black")
-      .style("opacity", 0.9);
+   // New item appears after a delay to allow the shuffle to happen
+   var delay = (vis_queue.length == 0) ? 0 : 250;
+   setTimeout( function() {
+       svg.append("rect")
+          .attr("id", "qBox_"+node_id)
+          .attr("x", queue_x)
+          .attr("y", queue_y)
+          .attr("height", queue_item_h)
+          .attr("width", queue_item_w)
+          .style("fill", "white")
+          .style("stroke-width", 1)
+          .style("stroke", "black")
+          .style("opacity", 0.9);
 
-   svg.append("text")
-      .attr("id", "qText_"+node_id)
-      .attr("x", queue_x + queue_item_w/4)
-      .attr("y", queue_y + queue_item_h/2 + 4)
-      .style("font-family", "serif")
-      .style("font-size", 18)
-      .text(node_id);
+       svg.append("text")
+          .attr("id", "qText_"+node_id)
+          .attr("x", queue_x + queue_item_w/4)
+          .attr("y", queue_y + queue_item_h/2 + 4)
+          .style("font-family", "serif")
+          .style("font-size", 18)
+          .text(node_id);
+   }, delay);
 
    vis_queue.push(node_id);
 }
@@ -213,16 +221,20 @@ function highlightNextUp(node_id) {
 	}
 }
 
+var tmp_dbg_cnt = 1;
+
 // step the BFS forward one position
 function stepBFS() {
-	var curr_timestep = up_next;
-	up_next = [];
-	for(var i in curr_timestep) {
-		visited.push(curr_timestep[i]);
-		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
-		node_queue.enque(curr_timestep[i]);
-		highlightNextUp(curr_timestep[i]);
-	}
+	//var curr_timestep = up_next;
+	//up_next = [];
+	//for(var i in curr_timestep) {
+	//	visited.push(curr_timestep[i]);
+	//	d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
+	//	node_queue.enque(curr_timestep[i]);
+	//	highlightNextUp(curr_timestep[i]);
+	//}
+
+	node_queue.enque(tmp_dbg_cnt++);
 
 }
 
