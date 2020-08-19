@@ -70,7 +70,6 @@ function visShuffleAlong() {
 	var x_pos = queue_x;
 	//for(var i in vis_queue) {
 	for (var i = vis_queue.length -1; i>=0; i--) {
-		console.log("shuffling along " + vis_queue[i] + " to " + (x_pos + queue_item_w + queue_item_spacing) );
 		d3.select("#qBox_"+vis_queue[i])
 		  .transition()
 		  .attr("x", function(d) {
@@ -100,7 +99,6 @@ function visQClear(){
 
 // performs the visualisation of an item being added to the queue
 function visAddItem(node_id){
-   console.log("Adding " + node_id + " to the queue.");	
 
    visShuffleAlong();
 
@@ -116,13 +114,14 @@ function visAddItem(node_id){
           .style("fill", "white")
           .style("stroke-width", 1)
           .style("stroke", "black")
-          .style("opacity", 0.9);
+          .style("opacity", 1.0);
 
        svg.append("text")
           .attr("id", "qText_"+node_id)
           .attr("x", queue_x + queue_item_w/4)
           .attr("y", queue_y + queue_item_h/2 + 4)
           .style("font-family", "serif")
+	  .style("opacity", 1.0)
           .style("font-size", 18)
           .text(node_id);
    }, delay);
@@ -131,8 +130,14 @@ function visAddItem(node_id){
 }
 
 // performs the visualisation of an item being removed from the queue
-function visRemoveItem(node_id) {
-	console.log("Removing " + node_id + " from the queue");  
+function visRemoveItem() {
+	d3.select("#qBox_"+ vis_queue[0]).transition().style("opacity", 0.1).duration(250);
+	d3.select("#qText_"+vis_queue[0]).transition().style("opacity", 0.1).duration(250);
+	setTimeout( function() {
+		d3.select("#qBox_"+ vis_queue[0]).remove();
+		d3.select("#qText_"+vis_queue[0]).remove();
+		vis_queue.shift();
+	}, 250);
 }
 
 function Queue() {
@@ -152,7 +157,7 @@ Queue.prototype.peek = function () {
 
 // deque
 Queue.prototype.deque = function() {
-	visRemoveItem(this.elements[0]);
+	visRemoveItem();
 	return this.elements.shift();
 };
 
@@ -197,17 +202,19 @@ function neighbours(node_id) {
 
 // reset the BFS
 function resetBFS() {
-	for(var node in graph_data.nodes) {
-		d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
-	}
-	visited = [];
-	up_next = [];
+	//for(var node in graph_data.nodes) {
+	//	d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
+	//}
+	//visited = [];
+	//up_next = [];
 
-	while(!node_queue.isEmpty()){
-		node_queue.deque();
-	}
+	//while(!node_queue.isEmpty()){
+	//	node_queue.deque();
+	//}
 
-	visQClear();
+	//visQClear();
+
+	node_queue.deque();
 }
 
 // highlights all unvisited neighbours
