@@ -157,6 +157,7 @@ Queue.prototype.peek = function () {
 
 // deque
 Queue.prototype.deque = function() {
+	console.log("Dequing");
 	visRemoveItem();
 	return this.elements.shift();
 };
@@ -199,22 +200,23 @@ function neighbours(node_id) {
 	return n;
 }
 
+var current_node = 0;
+var fin = false;
 
 // reset the BFS
 function resetBFS() {
-	//for(var node in graph_data.nodes) {
-	//	d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
-	//}
-	//visited = [];
-	//up_next = [];
+	for(var node in graph_data.nodes) {
+		d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
+	}
+	visited = [];
+	up_next = [];
 
-	//while(!node_queue.isEmpty()){
-	//	node_queue.deque();
-	//}
+	while(!node_queue.isEmpty()){
+		node_queue.deque();
+	}
 
-	//visQClear();
-
-	node_queue.deque();
+	visQClear();
+	fin = false;
 }
 
 // highlights all unvisited neighbours
@@ -228,10 +230,25 @@ function highlightNextUp(node_id) {
 	}
 }
 
-var tmp_dbg_cnt = 1;
-
 // step the BFS forward one position
 function stepBFS() {
+
+	if(up_next.length == 0) {
+	    if(node_queue.isEmpty()) {
+		fin = true;
+	    } else {
+	        current_node = node_queue.deque();	
+	        up_next = neighbours(current_node);
+	        visited.push(current_node);
+	    } 
+	} else {
+	    var nnode = up_next.shift();
+	    if(!hasVisited(nnode)) {
+	    	node_queue.enque(up_next.shift());
+	    }
+	}
+
+
 	//var curr_timestep = up_next;
 	//up_next = [];
 	//for(var i in curr_timestep) {
@@ -241,16 +258,14 @@ function stepBFS() {
 	//	highlightNextUp(curr_timestep[i]);
 	//}
 
-	node_queue.enque(tmp_dbg_cnt++);
-
 }
 
 // initialise the BFS
 function initBFS() {
 	resetBFS();
 	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-	visited.push(start_node_id);
-	highlightNextUp(start_node_id);
+	node_queue.enque(start_node_id);
+	//highlightNextUp(start_node_id);
 }
 
 // Adds a button that when triggered executes func()
