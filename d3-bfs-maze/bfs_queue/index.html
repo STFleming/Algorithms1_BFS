@@ -59,29 +59,106 @@ var up_next = [];
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 var queue_x = 40;
 var queue_y = 500;
+var queue_item_w = 30;
+var queue_item_h = 70;
+var queue_item_spacing = 5;
+var vis_queue = [];
 
-var queue = []; // list of the id's that are in the queue
+// shuffle along all the items in the queue
+function visShuffleAlong() {
+
+	var x_pos = queue_x;
+	//for(var i in vis_queue) {
+	for (var i = vis_queue.length -1; i>=0; i--) {
+		console.log("shuffling along " + vis_queue[i] + " to " + (x_pos + queue_item_w + queue_item_spacing) );
+		d3.select("#qBox_"+vis_queue[i])
+		  .attr("x", function(d) {
+			  return x_pos + queue_item_w + queue_item_spacing;
+		  });
+
+		d3.select("#qText_"+vis_queue[i])
+		  .attr("x", function(d) { 
+			  return x_pos + queue_item_w + queue_item_spacing + queue_item_w/4;
+		  });
+
+		x_pos = x_pos + queue_item_w + queue_item_spacing;
+	}
+}
+
+// clear all elements in the vis queue
+function visQClear(){
+	for(var i in vis_queue) {
+		d3.select("#qBox_"+vis_queue[i]).remove();
+		d3.select("#qText_"+vis_queue[i]).remove();
+	}
+}
+
 
 // performs the visualisation of an item being added to the queue
 function visAddItem(node_id){
+   console.log("Adding " + node_id + " to the queue.");	
 
+   visShuffleAlong();
+
+   svg.append("rect")
+      .attr("id", "qBox_"+node_id)
+      .attr("x", queue_x)
+      .attr("y", queue_y)
+      .attr("height", queue_item_h)
+      .attr("width", queue_item_w)
+      .style("fill", "white")
+      .style("stroke-width", 1)
+      .style("stroke", "black")
+      .style("opacity", 0.9);
+
+   svg.append("text")
+      .attr("id", "qText_"+node_id)
+      .attr("x", queue_x + queue_item_w/4)
+      .attr("y", queue_y + queue_item_h/2 + 4)
+      .style("font-family", "serif")
+      .style("font-size", 18)
+      .text(node_id);
+
+   vis_queue.push(node_id);
 }
 
 // performs the visualisation of an item being removed from the queue
 function visRemoveItem(node_id) {
-    
+	console.log("Removing " + node_id + " from the queue");  
 }
 
-// enque a node for processing in the next BFS step
-function enqueBFS(node_id) {
-    queue.append(node_id);
-    visAddItem(node_id);
+function Queue() {
+	this.elements = [];
+};
+
+// enque
+Queue.prototype.enque = function (e) {
+	this.elements.push(e);
+	visAddItem(e);
+};
+
+// peek
+Queue.prototype.peek = function () {
+	return !this.isEmpty() ? this.elements[0] : undefined;
 }
 
-// deque a node for processing in the next BFS step
-function deque() {
+// deque
+Queue.prototype.deque = function() {
+	visRemoveItem(this.elements[0]);
+	return this.elements.shift();
+};
 
+// isEmpty
+Queue.prototype.isEmpty = function() {
+	return this.elements.length == 0;
+};
+
+// length
+Queue.prototype.length = function() {
+	return this.elements.length;
 }
+
+let node_queue = new Queue();
 
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -117,6 +194,12 @@ function resetBFS() {
 	}
 	visited = [];
 	up_next = [];
+
+	while(!node_queue.isEmpty()){
+		node_queue.deque();
+	}
+
+	visQClear();
 }
 
 // highlights all unvisited neighbours
@@ -137,8 +220,10 @@ function stepBFS() {
 	for(var i in curr_timestep) {
 		visited.push(curr_timestep[i]);
 		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
+		node_queue.enque(curr_timestep[i]);
 		highlightNextUp(curr_timestep[i]);
 	}
+
 }
 
 // initialise the BFS
