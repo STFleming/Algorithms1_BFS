@@ -65,6 +65,8 @@ var queue_item_h = 70;
 var queue_item_spacing = 5;
 var vis_queue = [];
 
+var queue_x_end = 0;
+
 // shuffle along all the items in the queue
 function visShuffleAlong() {
 
@@ -87,6 +89,7 @@ function visShuffleAlong() {
 
 		x_pos = x_pos + queue_item_w + queue_item_spacing;
 	}
+	queue_x_end = x_pos;
 }
 
 // clear all elements in the vis queue
@@ -104,7 +107,7 @@ function visAddItem(node_id){
    visShuffleAlong();
 
    // New item appears after a delay to allow the shuffle to happen
-   var delay = (vis_queue.length == 0) ? 0 : 250;
+   var delay = (vis_queue.length == 0) ? 0 : 150;
    setTimeout( function() {
        svg.append("rect")
           .attr("id", "qBox_"+node_id)
@@ -141,6 +144,61 @@ function visRemoveItem() {
 	}, 250);
 }
 
+// Enque dot (a dot that shows what is being enqued)
+function dotEnque(node_id) {
+    // animates a dot moving from node_id on the graph and pushing an item into the queue
+    var start_x = d3.select("#node_"+node_id).attr("cx");
+    var start_y = d3.select("#node_"+node_id).attr("cy");
+
+    var Tlen = 800;
+
+     svg.append("circle")
+     .attr("id", "enque_dot")
+     .attr("cx", start_x)
+     .attr("cy", start_y)
+     .attr("r", 5)
+     .style("stroke", "none")
+     .style("fill", queued_colour)
+     .transition()
+     .attr("cx", queue_x + queue_item_w/2)
+     .attr("cy", queue_y + queue_item_h/2)
+     .duration(Tlen);
+
+     setTimeout( function() {
+        visAddItem(node_id);
+         setTimeout( function() { d3.select("#enque_dot").remove(); }, 150);
+     }, Tlen - 250);
+
+}
+
+// Deque dot (a dot that shows what is being dequed)
+function dotDeque(node_id) {
+    // animates a dot moving from node_id on the graph and pushing an item into the queue
+    var end_x = d3.select("#node_"+node_id).attr("cx");
+    var end_y = d3.select("#node_"+node_id).attr("cy");
+    var Tlen = 800;
+
+     svg.append("circle")
+     .attr("id", "deque_dot")
+     .attr("cx", queue_x_end)
+     .attr("cy", queue_y + queue_item_h/2)
+     .attr("r", 5)
+     .style("stroke", "none")
+     .style("fill", active_colour)
+     .transition()
+     .attr("cx", end_x)
+     .attr("cy", end_y)
+     .duration(Tlen);
+
+     setTimeout( function() {
+	    nodeColour(node_id, active_colour); 
+	    nodeHighlight(node_id);
+        setTimeout( function() { d3.select("#deque_dot").remove(); }, 250);
+     }, Tlen);
+
+}
+
+
 function Queue() {
 	this.elements = [];
 };
@@ -148,7 +206,8 @@ function Queue() {
 // enque
 Queue.prototype.enque = function (e) {
 	this.elements.push(e);
-	visAddItem(e);
+	//visAddItem(e);
+	dotEnque(e);
 };
 
 // peek
@@ -302,8 +361,7 @@ function stepBFS() {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
 	        console.log("\tDEQUE: Exploring new node " + current_node);
-	        nodeColour(current_node, active_colour); 
-	        nodeHighlight(current_node);
+            dotDeque(current_node);
 
 	        up_next = neighbours(current_node);
 	        console.log("\tNeighbours: ");
