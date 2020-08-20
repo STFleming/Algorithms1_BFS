@@ -112,7 +112,7 @@ function visAddItem(node_id){
           .attr("y", queue_y)
           .attr("height", queue_item_h)
           .attr("width", queue_item_w)
-          .style("fill", "white")
+          .style("fill", queued_colour)
           .style("stroke-width", 1)
           .style("stroke", "black")
           .style("opacity", 1.0);
@@ -219,6 +219,7 @@ function resetBFS() {
 	visQClear();
 	fin = false;
     d3.selectAll("#node_highlight").remove(); 	
+    reenableEdges();
 }
 
 // highlights all unvisited neighbours
@@ -238,9 +239,30 @@ function nodeColour(node_id, colour) {
     d3.select("#node_"+node_id).style("fill", colour); 	
 }
 
+// For all links connected to a node dim it's edges
+function dimEdges(node_id) {
+    var opacity = 0.3;
+    for(var li in graph_data.links) {
+        if(graph_data.links[li].source.id == node_id) {
+            d3.select("#link_"+graph_data.links[li].source.id+"_"+graph_data.links[li].target.id).style("opacity", opacity);
+        }
+        if(graph_data.links[li].target.id == node_id) {
+            d3.select("#link_"+graph_data.links[li].source.id+"_"+graph_data.links[li].target.id).style("opacity", opacity);
+        }
+    }
+}
+
+// reenable edges
+function reenableEdges(){
+    for(var li in graph_data.links) {
+        d3.select("#link_"+graph_data.links[li].source.id+"_"+graph_data.links[li].target.id).style("opacity", "1.0");
+    }
+}
+
 // changes the colour, and opacity
 function nodeVisitedVis(node_id) {
     d3.select("#node_"+node_id).style("opacity", "0.3").style("fill",visited_colour);
+    dimEdges(node_id);
 }
 
 // highlight the current node
@@ -374,6 +396,7 @@ d3.json(graph_json, function(error, graph) {
       .selectAll("line")
       .data(graph.links)
       .enter().append("line")
+      .attr("id", function(d) { return "link_" + d.source.id +"_"+ d.target.id;})
       .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
