@@ -298,7 +298,14 @@ function stepBFS() {
 function initBFS() {
 	d3.select("#node_"+start_node_id).style("fill", visited_colour);
     if(start_node_id != undefined) {
-	    node_queue.enque(start_node_id);
+	    //node_queue.enque(start_node_id);
+	    nodeVisitedVis(current_node);
+	    current_node = start_node_id;
+        nodeColour(current_node, active_colour);
+        nodeHighlight(current_node);
+
+        up_next = neighbours(current_node);
+        visited.push(current_node);
     }
 }
 
