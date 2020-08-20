@@ -26,21 +26,30 @@ def main(argv):
         elif opt in ("-l", "--locality"):
             locality = int(arg)
 
+    # 2D array of nodes
     nodes=[]
+
+    # Array of links
     links=[]
 
     # populate the nodes
     current_id = 0
     for i in range(numnodes):
-        nodes.append(current_id)
-        current_id = current_id + 1
+        nodes.append([])
+        for j in range(numnodes):
+            nodes[i].append(current_id)
+            current_id = current_id + 1
 
-    for n in nodes:
-        for d in range(degree):
-            target_dist = random.randint(-locality, locality)
-            target = (n + target_dist) % numnodes
-            connection = [n, target]
-            links.append(connection)
+    for nline in nodes:
+        for n in nline: 
+            for d in range(random.randint(0,degree)):
+                target_dist_x = random.randint(-locality, locality)
+                target_x = (n + target_dist_x) % numnodes
+                target_dist_y = random.randint(-locality, locality)
+                target_y = (n + target_dist_y) % numnodes
+                target_node = nodes[target_x][target_y]
+                connection = [n, target_node]
+                links.append(connection)
 
     # render the JSON
     out = open(outputfile, "w")
@@ -48,8 +57,9 @@ def main(argv):
     
     # render nodes 
     nodestr = "\"nodes\" : [" 
-    for n in nodes:
-        nodestr += "\n{ \"id\": "+str(n)+", \"name\": \"node"+str(n)+"\"},"
+    for nlist in nodes:
+        for n in nlist:
+            nodestr += "\n{ \"id\": "+str(n)+", \"name\": \"node"+str(n)+"\"},"
     nodestr = nodestr[:-1] # remove the final comma
     nodestr += "\n]," 
     out.write(nodestr)
