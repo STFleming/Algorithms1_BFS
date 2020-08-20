@@ -55,6 +55,18 @@ var up_next = [];
 
 // NOTE: NONE OF THIS IS OPTIMISED. THE CODE WAS WRITTEN QUICKLY TO DEMONSTRATE THE BFS ALGORITHM AS I DID NOT HAVE MUCH FREE TIME TO WORK ON IT FOR THE INTERVIEW PRESENTATION :)
 
+// Adds a label to the diagram
+function addLabel(x, y, text_in) {
+	svg.append("text")
+	   .attr("x", x)
+	   .attr("y", y)
+           .style("font-family", "serif")
+           .style("font-size", 22)
+           .style("text-decoration", "underline")
+	   .text(text_in);
+}
+
+
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //         Queue Visualiser and helpers
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -64,8 +76,38 @@ var queue_item_w = 30;
 var queue_item_h = 70;
 var queue_item_spacing = 5;
 var vis_queue = [];
-
 var queue_x_end = 0;
+var q_bbox_margin = 15;
+
+addLabel(queue_x - 100, queue_y + queue_item_h/2, "Queue: "); 
+
+// Bounding box for the queue
+var min_q_size = (queue_item_w)/2;
+var q_width = min_q_size; 
+function drawQBox(){
+    svg.append("rect")
+       .attr("id", "qBoundBox")
+       .attr("x", queue_x - q_bbox_margin/2)
+       .attr("y", queue_y - q_bbox_margin/2)
+       .attr("height", queue_item_h + q_bbox_margin)
+       .attr("width", q_width)
+       .style("fill", "none")
+       .style("stroke-dasharray", ("3","3"))
+       .style("stroke-width", 1)
+       .style("stroke", "grey");
+};
+
+function updateQBox(adj_amount){
+    var adjustment = 0;
+    if( (q_width + adj_amount) < min_q_size)
+        adjustment = min_q_size;
+    else 
+        adjustment = q_width + adj_amount;
+
+    d3.select("#qBoundBox").transition().attr("width", adjustment).duration(250);
+
+    q_width = adjustment;
+};
 
 // shuffle along all the items in the queue
 function visShuffleAlong() {
@@ -98,6 +140,8 @@ function visQClear(){
 		d3.select("#qBox_"+vis_queue[i]).remove();
 		d3.select("#qText_"+vis_queue[i]).remove();
 	}
+	q_width = min_q_size;
+    updateQBox(0);
 }
 
 
@@ -105,6 +149,8 @@ function visQClear(){
 function visAddItem(node_id){
 
    visShuffleAlong();
+   updateQBox(queue_item_w + queue_item_spacing);
+   console.log("Adding item");
 
    // New item appears after a delay to allow the shuffle to happen
    var delay = (vis_queue.length == 0) ? 0 : 150;
@@ -128,6 +174,8 @@ function visAddItem(node_id){
 	      .style("opacity", 1.0)
           .style("font-size", 18)
           .text(node_id);
+
+
    }, delay);
 
    vis_queue.push(node_id);
@@ -137,6 +185,7 @@ function visAddItem(node_id){
 function visRemoveItem() {
 	d3.select("#qBox_"+ vis_queue[0]).transition().style("opacity", 0.1).duration(250);
 	d3.select("#qText_"+vis_queue[0]).transition().style("opacity", 0.1).duration(250);
+	updateQBox(-1*(queue_item_w + queue_item_spacing));
 	setTimeout( function() {
 		d3.select("#qBox_"+ vis_queue[0]).remove();
 		d3.select("#qText_"+vis_queue[0]).remove();
@@ -460,17 +509,6 @@ function addButton(id, x, y, text_in, func) {
 
 }
 
-// Adds a label to the diagram
-function addLabel(x, y, text_in) {
-	svg.append("text")
-	   .attr("x", x)
-	   .attr("y", y)
-           .style("font-family", "serif")
-           .style("font-size", 22)
-           .style("text-decoration", "underline")
-	   .text(text_in);
-}
-
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
@@ -531,6 +569,8 @@ d3.json(graph_json, function(error, graph) {
    addButton("cntrl_reset", 250, 15, "reset()", resetBFS); 
    addButton("cntrl_play", 350, 15, "play()", playback); 
 
+    // The Queue
+    drawQBox();
 });
 
 
