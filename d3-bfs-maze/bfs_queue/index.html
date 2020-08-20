@@ -210,6 +210,7 @@ function resetBFS() {
 	}
 	visited = [];
 	up_next = [];
+	current_node = undefined;
 
 	while(!node_queue.isEmpty()){
 		node_queue.deque();
@@ -259,7 +260,12 @@ function nodeHighlight(node_id) {
      .style("fill", "none")
      .style("stroke-width", 2);
 
-}
+};
+
+// clear the highlight
+function nodeHighlightClear(){
+  d3.selectAll("#node_highlight").remove(); 	
+};
 
 // step the BFS forward one position
 function stepBFS() {
@@ -267,8 +273,9 @@ function stepBFS() {
 	if(up_next.length == 0) {
 	    if(node_queue.isEmpty()) {
 	        console.log("\t finished");
+	        nodeVisitedVis(current_node);
+	        nodeHighlightClear();
 		    fin = true;
-		    resetBFS();
 	    } else {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
@@ -382,7 +389,7 @@ d3.json(graph_json, function(error, graph) {
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", node_size)
-      .on("click", function(d) { start_node_id = d.id; initBFS(); })
+      .on("click", function(d) { resetBFS(); start_node_id = d.id; initBFS(); })
       .style("stroke", "black")
       .style("stroke-width", 2)
       .style("fill", unvisited_colour );
