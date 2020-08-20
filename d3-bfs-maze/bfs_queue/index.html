@@ -26,15 +26,16 @@ text {
 // graph.json
 var graph_json = "simple_graph.json";
 
-var visited_colour = "orange";
+var visited_colour = "#bfef45";
 var unvisited_colour = "gainsboro";
-var next_up_colour = "green";
+var queued_colour = "#ffe119";
+var active_colour = "#f58231";
 
 var node_size = 25;
 var force_strength = -360;
 var link_width = 3;
 
-var start_node_id = 5;
+var start_node_id = undefined;
 
 // maze.json
 
@@ -52,12 +53,12 @@ var visited = [];
 var bfs_queue = [];
 var up_next = [];
 
-// NOTE: NONE OF THIS IS OPTIMISED. THE CODE WAS WRITTEN INEFFICIENTLY TO DEMONSTRATE THE BFS ALGORITHM AS I DID NOT HAVE MUCH FREE TIME TO WORK ON IT FOR THE INTERVIEW PRESENTATION :)
+// NOTE: NONE OF THIS IS OPTIMISED. THE CODE WAS WRITTEN QUICKLY TO DEMONSTRATE THE BFS ALGORITHM AS I DID NOT HAVE MUCH FREE TIME TO WORK ON IT FOR THE INTERVIEW PRESENTATION :)
 
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //         Queue Visualiser and helpers
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-var queue_x = 40;
+var queue_x = 150;
 var queue_y = 500;
 var queue_item_w = 30;
 var queue_item_h = 70;
@@ -121,7 +122,7 @@ function visAddItem(node_id){
           .attr("x", queue_x + queue_item_w/4)
           .attr("y", queue_y + queue_item_h/2 + 4)
           .style("font-family", "serif")
-	  .style("opacity", 1.0)
+	      .style("opacity", 1.0)
           .style("font-size", 18)
           .text(node_id);
    }, delay);
@@ -157,7 +158,6 @@ Queue.prototype.peek = function () {
 
 // deque
 Queue.prototype.deque = function() {
-	console.log("Dequing");
 	visRemoveItem();
 	return this.elements.shift();
 };
@@ -224,48 +224,76 @@ function highlightNextUp(node_id) {
 	var possible = neighbours(node_id);
 	for(var i in possible) {
 		if(!hasVisited(possible[i])) {
-			d3.select("#node_"+possible[i]).style("fill", next_up_colour); 	
+			d3.select("#node_"+possible[i]).style("fill", queued_colour); 	
 			up_next.push(possible[i]);
 		}
 	}
 }
 
+
+// change the colour of a given node 
+function nodeColour(node_id, colour) {
+    d3.select("#node_"+node_id).style("fill", colour); 	
+}
+
+// highlight the current node
+function nodeHighlight(node_id) {
+  d3.selectAll("#node_highlight").remove(); 	
+
+  var cx = d3.select("#node_"+node_id).attr("cx");
+  var cy = d3.select("#node_"+node_id).attr("cy");
+  console.log("\t\thighlight: "+cx + ", " + cy);
+
+  d3.select(".nodes")
+     .append("circle")
+     .attr("id", "node_highlight")
+     .attr("cx", cx)
+     .attr("cy", cy)
+     .attr("r", node_size + node_size*0.2)
+     .style("stroke", "#800000")
+     .style("fill", "none")
+     .style("stroke-width", 2);
+
+}
+
 // step the BFS forward one position
 function stepBFS() {
-
+    console.log("step");
 	if(up_next.length == 0) {
 	    if(node_queue.isEmpty()) {
-		fin = true;
+	        console.log("\t finished");
+		    fin = true;
+		    resetBFS();
 	    } else {
+	        nodeColour(current_node, visited_colour);
 	        current_node = node_queue.deque();	
+	        console.log("\tDEQUE: Exploring new node " + current_node);
+	        nodeColour(current_node, active_colour); 
+	        nodeHighlight(current_node);
+
 	        up_next = neighbours(current_node);
+	        console.log("\tNeighbours: ");
+	        console.log(up_next);
 	        visited.push(current_node);
 	    } 
 	} else {
 	    var nnode = up_next.shift();
+        nodeHighlight(nnode);
 	    if(!hasVisited(nnode)) {
-	    	node_queue.enque(up_next.shift());
+            nodeColour(nnode, queued_colour);
+	        console.log("\tENQUE: Adding Neighbour " + nnode); 
+	    	node_queue.enque(nnode);
 	    }
 	}
-
-
-	//var curr_timestep = up_next;
-	//up_next = [];
-	//for(var i in curr_timestep) {
-	//	visited.push(curr_timestep[i]);
-	//	d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
-	//	node_queue.enque(curr_timestep[i]);
-	//	highlightNextUp(curr_timestep[i]);
-	//}
 
 }
 
 // initialise the BFS
 function initBFS() {
-	resetBFS();
 	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-	node_queue.enque(start_node_id);
-	//highlightNextUp(start_node_id);
+    if(start_node_id != undefined) {
+	    node_queue.enque(start_node_id);
+    }
 }
 
 // Adds a button that when triggered executes func()
@@ -289,7 +317,7 @@ function addButton(x, y, text_in, func) {
       .style("stroke-width", 2)
       .style("stroke", "black")
       .style("opacity", 0.3)
-      .on("mouseover", function() { d3.select(this).style("fill", next_up_colour); d3.select(this).style("opacity", 0.3); })
+      .on("mouseover", function() { d3.select(this).style("fill", queued_colour); d3.select(this).style("opacity", 0.3); })
       .on("mouseout",  function() { d3.select(this).style("fill", "white"); })
       .on("click", func);
 
