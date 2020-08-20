@@ -292,6 +292,41 @@ function highlightNextUp(node_id) {
 	}
 }
 
+// disables all controls
+function disableControls() {
+    d3.selectAll("#cntrl_step").style("fill", "gainsboro");
+    d3.selectAll("#cntrl_reset").style("fill", "gainsboro");
+    d3.selectAll("#cntrl_play").style("fill", "gainsboro");
+};
+
+// enables all controls
+function enableControls() {
+    d3.selectAll("#cntrl_step").style("opacity", "white");
+    d3.selectAll("#cntrl_reset").style("opacity", "white");
+    d3.selectAll("#cntrl_play").style("opacity", "white");
+};
+
+
+// play the simulation at a certain speed
+// disable all other controls while this is happening
+var playing = false;
+var playback_speed = 1500;
+function playback(){
+    setTimeout(function () {
+
+        if(!playing)
+            disableControls();
+
+        stepBFS();
+        if(!fin) {
+            playing = true;
+            playback();
+        } else {
+            playing = false;
+            enableControls();
+        }
+    }, playback_speed);
+}
 
 // change the colour of a given node 
 function nodeColour(node_id, colour) {
@@ -345,7 +380,7 @@ function nodeHighlight(node_id) {
 
 // clear the highlight
 function nodeHighlightClear(){
-  d3.selectAll("#node_highlight").remove(); 	
+    d3.selectAll("#node_highlight").remove(); 	
 };
 
 // step the BFS forward one position
@@ -366,8 +401,10 @@ function stepBFS() {
 	        up_next = neighbours(current_node);
 	        console.log("\tNeighbours: ");
 	        console.log(up_next);
+	        playback_speed = 1250;
 	    } 
 	} else {
+	    playback_speed = 1500;
 	    var nnode = up_next.shift();
         nodeHighlight(nnode);
 	    if(!hasVisited(nnode)) {
@@ -396,7 +433,7 @@ function initBFS() {
 }
 
 // Adds a button that when triggered executes func()
-function addButton(x, y, text_in, func) {
+function addButton(id, x, y, text_in, func) {
    var button_width = 80;
    var button_height = 30;
 
@@ -408,6 +445,7 @@ function addButton(x, y, text_in, func) {
       .text(text_in);
 
    var button = svg.append("rect")
+      .attr("id", id)
       .attr("x", x)
       .attr("y", y)
       .attr("height", button_height)
@@ -416,9 +454,9 @@ function addButton(x, y, text_in, func) {
       .style("stroke-width", 2)
       .style("stroke", "black")
       .style("opacity", 0.3)
-      .on("mouseover", function() { d3.select(this).style("fill", queued_colour); d3.select(this).style("opacity", 0.3); })
+        .on("mouseover", function() { if(!playing) { d3.select(this).style("fill", queued_colour); d3.select(this).style("opacity", 0.3);} })
       .on("mouseout",  function() { d3.select(this).style("fill", "white"); })
-      .on("click", func);
+      .on("click", function() { if(!playing) func();});
 
 }
 
@@ -489,8 +527,9 @@ d3.json(graph_json, function(error, graph) {
 
    // control buttons
    addLabel(50,35,"Controls");
-   addButton(150, 15, "step()", stepBFS); 
-   addButton(250, 15, "reset()", resetBFS); 
+   addButton("cntrl_step", 150, 15, "step()", stepBFS); 
+   addButton("cntrl_reset", 250, 15, "reset()", resetBFS); 
+   addButton("cntrl_play", 350, 15, "play()", playback); 
 
 });
 
