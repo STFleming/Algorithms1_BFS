@@ -206,7 +206,7 @@ var fin = false;
 // reset the BFS
 function resetBFS() {
 	for(var node in graph_data.nodes) {
-		d3.select("#node_" + graph_data.nodes[node].id). style("fill", unvisited_colour);  
+		d3.select("#node_" + graph_data.nodes[node].id).style("fill", unvisited_colour).style("opacity", "1.0");  
 	}
 	visited = [];
 	up_next = [];
@@ -217,6 +217,7 @@ function resetBFS() {
 
 	visQClear();
 	fin = false;
+    d3.selectAll("#node_highlight").remove(); 	
 }
 
 // highlights all unvisited neighbours
@@ -234,6 +235,11 @@ function highlightNextUp(node_id) {
 // change the colour of a given node 
 function nodeColour(node_id, colour) {
     d3.select("#node_"+node_id).style("fill", colour); 	
+}
+
+// changes the colour, and opacity
+function nodeVisitedVis(node_id) {
+    d3.select("#node_"+node_id).style("opacity", "0.3").style("fill",visited_colour);
 }
 
 // highlight the current node
@@ -265,7 +271,7 @@ function stepBFS() {
 		    fin = true;
 		    resetBFS();
 	    } else {
-	        nodeColour(current_node, visited_colour);
+	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
 	        console.log("\tDEQUE: Exploring new node " + current_node);
 	        nodeColour(current_node, active_colour); 
