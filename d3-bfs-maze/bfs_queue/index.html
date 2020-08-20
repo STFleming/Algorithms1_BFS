@@ -279,7 +279,6 @@ function stepBFS() {
 	        up_next = neighbours(current_node);
 	        console.log("\tNeighbours: ");
 	        console.log(up_next);
-	        visited.push(current_node);
 	    } 
 	} else {
 	    var nnode = up_next.shift();
@@ -288,6 +287,7 @@ function stepBFS() {
             nodeColour(nnode, queued_colour);
 	        console.log("\tENQUE: Adding Neighbour " + nnode); 
 	    	node_queue.enque(nnode);
+	        visited.push(nnode);
 	    }
 	}
 
