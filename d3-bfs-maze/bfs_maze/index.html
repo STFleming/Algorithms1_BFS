@@ -463,7 +463,7 @@ function enableControls() {
 // disable all other controls while this is happening
 var shortest_path_fin = false;
 var playing = false;
-var playback_speed = 0.05;
+var playback_speed = 4;
 function playback(){
     setTimeout(function () {
 
@@ -523,7 +523,7 @@ function nodeHighlightClear(){
 };
 
 // Shortest path variables
-var shortest_path_curr_id = 399;
+var shortest_path_curr_id = 1599;
 
 // Adds a small dot for the shortest path
 function addSPDot(node_id) {
@@ -619,9 +619,9 @@ function addButton(id, x, y, text_in, func) {
 var maze_x = 100;
 var maze_y = 100;
 
-var maze_n = 80;
+var maze_n = 40;
 
-var cell_size = 7;
+var cell_size = 12;
 var cell_space = 2; 
 var wall_stroke = 2;
 
