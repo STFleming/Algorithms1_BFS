@@ -630,7 +630,7 @@ function addButton(id, x, y, text_in, func) {
 var maze_x = 100;
 var maze_y = 100;
 
-var maze_n = 20;
+var maze_n = 25;
 
 var cell_size = 25;
 var cell_space = 2; 
@@ -646,8 +646,8 @@ d3.json(graph_json, function(error, graph) {
    graph_data = graph;
 
    // Generate the grid
-   for(var x=0; x<maze_n; x++) {
-       for(var y=0; y<maze_n; y++) {
+   for(var y=0; y<maze_n; y++) {
+        for(var x=0; x<maze_n; x++) {
        		svg.append("rect")
 	           .attr("id", getIdent(x,y,maze_n))
 	           .attr("x", x*(cell_size + cell_space) + maze_x)
@@ -703,7 +703,7 @@ d3.json(graph_json, function(error, graph) {
    for(l in graph_data.links) {
        var cell1 = graph_data.links[l].source;
        var cell2 = graph_data.links[l].target;
-       d3.select("#wall_"+cell1+"_"+cell2).remove();
+       d3.select("#wall_"+Math.min(cell1, cell2)+"_"+Math.max(cell1,cell2)).remove();
    }
 
 

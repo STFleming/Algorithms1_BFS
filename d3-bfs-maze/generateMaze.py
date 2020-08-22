@@ -74,6 +74,7 @@ def main(argv):
     cell_x = 0
     cell_y = 0
 
+    stack.append([cell_x, cell_y])
     while(not finished):
         # get the neighbours of the current cell 
         neigh = getUnvisitedNeighbours(cell_x,cell_y,visited,n)
