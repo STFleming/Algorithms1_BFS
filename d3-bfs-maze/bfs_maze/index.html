@@ -108,7 +108,6 @@ function addParentArray(node_id, parent_id){
     d3.select("#parent_array_"+node_id).style("fill", visited_colour).style("opacity", 0.3);  
     var x = parseInt(d3.select("#parent_array_"+node_id).attr("x"));
     var y = parseInt(d3.select("#parent_array_"+node_id).attr("y"));
-    console.log("Adding text to: (" + x + "," + y + ")");
     svg.append("text")
        .attr("id", "parent_array_entry")
        .attr("x", x + 3)
@@ -258,7 +257,6 @@ function visAddItem(node_id){
 
    visShuffleAlong();
    updateQBox(queue_item_w + queue_item_spacing);
-   console.log("Adding item");
 
    // New item appears after a delay to allow the shuffle to happen
    var delay = (vis_queue.length == 0) ? 0 : 150;
@@ -395,11 +393,7 @@ let node_queue = new Queue();
 // returns true if a node has already been visited
 // doing a linear walk over a visited list every node consideration is ridiculous but I'm in a hurry
 function hasVisited(node_id) {
-	for(var v in visited){
-		if(node_id == visited[v])
-			return true;
-	}
-	return false;
+	return visited[node_id];
 }
 
 // when provided with a node returns all the nodes connected to it
@@ -421,10 +415,11 @@ var fin = false;
 
 // reset the BFS
 function resetBFS() {
+	visited = [];
 	for(var node in graph_data.nodes) {
 		d3.select("#node_" + graph_data.nodes[node].id).style("fill", unvisited_colour).style("opacity", "1.0");  
+		visited[graph_data.nodes[node].id] = false;
 	}
-	visited = [];
 	up_next = [];
 	current_node = undefined;
 
@@ -466,8 +461,9 @@ function enableControls() {
 
 // play the simulation at a certain speed
 // disable all other controls while this is happening
+var shortest_path_fin = false;
 var playing = false;
-var playback_speed = 5;
+var playback_speed = 0.05;
 function playback(){
     setTimeout(function () {
 
@@ -475,7 +471,7 @@ function playback(){
             disableControls();
 
         stepBFS();
-        if(!fin) {
+        if(!shortest_path_fin) {
             playing = true;
             playback();
         } else {
@@ -512,7 +508,7 @@ function reenableEdges(){
 
 // changes the colour, and opacity
 function nodeVisitedVis(node_id) {
-    d3.select("#cell_"+node_id).style("opacity", "0.3").style("fill",visited_colour);
+    d3.select("#cell_"+node_id).style("opacity", "0.7").style("fill",visited_colour);
     dimEdges(node_id);
 }
 
@@ -527,41 +523,49 @@ function nodeHighlightClear(){
 };
 
 // Shortest path variables
-var shortest_path_curr_id = 33;
+var shortest_path_curr_id = 399;
+
+// Adds a small dot for the shortest path
+function addSPDot(node_id) {
+	var sp_x = parseInt(d3.select("#cell_"+node_id).attr("x"));
+	var sp_y = parseInt(d3.select("#cell_"+node_id).attr("y"));
+	
+	svg.append("circle")
+	   .attr("id", "shortest_path_dot")
+	   .attr("cx", sp_x + cell_size/2)
+	   .attr("cy", sp_y + cell_size/2)
+	   .attr("r", 2)
+	   .style("fill", "red");
+}
 
 // step the BFS forward one position
 function stepBFS() {
-    console.log("step");
 	if(up_next.length == 0) {
 	    if(node_queue.isEmpty()) {
-	        console.log("\t finished");
 	        nodeVisitedVis(current_node);
 	        nodeHighlightClear();
 		fin = true;
             if(shortest_path_curr_id != start_node_id) {
-                shortest_path.push(shortest_path_curr_id);
+		        addSPDot(shortest_path_curr_id);
+                	shortest_path.push(shortest_path_curr_id);
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
             } else {
-                console.log(shortest_path);
+		shortest_path_fin = true;
             }
 	    } else {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
-	        console.log("\tDEQUE: Exploring new node " + current_node);
             	//dotDeque(current_node);
 
 	        up_next = neighbours(current_node);
-	        console.log("\tNeighbours: ");
-	        console.log(up_next);
 	    } 
 	} else {
 	    var nnode = up_next.shift();
        	    nodeHighlight(nnode);
 	    if(!hasVisited(nnode)) {
                 nodeColour(nnode, queued_colour);
-	        console.log("\tENQUE: Adding Neighbour " + nnode); 
 	    	node_queue.enque(nnode);
-	        visited.push(nnode);
+	        visited[nnode] = true;
                 addParentArray(nnode, current_node);
 	    }
 	}
@@ -580,9 +584,7 @@ function initBFS() {
             nodeHighlight(current_node);
 
             up_next = neighbours(current_node);
-	    console.log("Init");
-	    console.log(up_next);
-            visited.push(current_node);
+            visited[current_node] = true;
     }
 }
 
@@ -617,9 +619,9 @@ function addButton(id, x, y, text_in, func) {
 var maze_x = 100;
 var maze_y = 100;
 
-var maze_n = 25;
+var maze_n = 80;
 
-var cell_size = 25;
+var cell_size = 7;
 var cell_space = 2; 
 var wall_stroke = 2;
 
