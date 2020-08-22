@@ -24,20 +24,15 @@ text {
 
 
 // graph.json
-var graph_json = "tree_graph.json";
+var graph_json = "maze.json";
 
 var visited_colour = "#bfef45";
 var unvisited_colour = "gainsboro";
 var queued_colour = "#ffe119";
 var active_colour = "#f58231";
 
-var node_size = 15;
-var force_strength = -180;
-var link_width = 3;
 
 var start_node_id = undefined;
-
-// maze.json
 
 // Use a force layout to plot the graph
 // force directed layout has been adapted from https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8
@@ -567,7 +562,7 @@ function stepBFS() {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
 	        console.log("\tDEQUE: Exploring new node " + current_node);
-            dotDeque(current_node);
+            	dotDeque(current_node);
 
 	        up_next = neighbours(current_node);
 	        console.log("\tNeighbours: ");
@@ -632,57 +627,85 @@ function addButton(id, x, y, text_in, func) {
 
 }
 
+var maze_x = 100;
+var maze_y = 100;
+
+var maze_n = 20;
+
+var cell_size = 25;
+var cell_space = 2; 
+var wall_stroke = 2;
+
+function getIdent(x,y, n){
+    return (x*n) + y;
+}
+
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
-  graph_data = graph;
+   graph_data = graph;
 
-  var simulation = d3.forceSimulation(graph.nodes)
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    .force("charge", d3.forceManyBody().strength(force_strength))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-		.stop();
-  
-  simulation.force("link")
-      .links(graph.links);
-  
-  for (var i = 0; i < 300; ++i) simulation.tick();
+   // Generate the grid
+   for(var x=0; x<maze_n; x++) {
+       for(var y=0; y<maze_n; y++) {
+       		svg.append("rect")
+	           .attr("id", getIdent(x,y,maze_n))
+	           .attr("x", x*(cell_size + cell_space) + maze_x)
+	           .attr("y", y*(cell_size + cell_space) + maze_y)
+	           .attr("height", cell_size)
+	           .attr("width", cell_size)
+	           .style("fill", "white")
+	           .style("stroke-width", 0);
 
-  var link = svg.append("g")
-      .attr("class", "links")
-      .selectAll("line")
-      .data(graph.links)
-      .enter().append("line")
-      .attr("id", function(d) { return "link_" + d.source.id +"_"+ d.target.id;})
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; })
-      .attr("stroke-width", link_width);
+		svg.append("line")
+		   .attr("id", "wall_"+getIdent(x,y,maze_n)+"_"+getIdent(x+1,y,maze_n))
+	           .attr("x1", x*(cell_size + cell_space) + cell_size + maze_x)
+		   .attr("y1", y*(cell_size + cell_space) + maze_y)
+	           .attr("x2", x*(cell_size + cell_space) + cell_size + maze_x)
+                   .attr("y2", y*(cell_size + cell_space) + cell_size + maze_y) 
+	           .style('stroke-width', wall_stroke)
+	           .style("stroke", "black");
 
-  var node = svg.append("g")
-      .attr("class", "nodes")
-      .selectAll("circle")
-      .data(graph.nodes)
-      .enter().append("circle")
-      .attr("id", function(d) { return "node_" + d.id; })
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr("r", node_size)
-      .on("click", function(d) { resetBFS(); start_node_id = d.id; initBFS(); })
-      .style("stroke", "black")
-      .style("stroke-width", 2)
-      .style("fill", unvisited_colour );
+		svg.append("line")
+		   .attr("id", "wall_"+getIdent(x,y,maze_n)+"_"+getIdent(x,y+1,maze_n))
+	           .attr("x1", x*(cell_size + cell_space) + maze_x)
+		   .attr("y1", y*(cell_size + cell_space) + cell_size + maze_y)
+	           .attr("x2", x*(cell_size + cell_space) + cell_size + maze_x)
+                   .attr("y2", y*(cell_size + cell_space) + cell_size + maze_y) 
+	           .style('stroke-width', wall_stroke)
+	           .style("stroke", "black");
+		 
+       }
+   }
 
-  var labels = svg.append("g")
-      .attr("class", "labels")
-      .selectAll("#node_label")
-      .data(graph.nodes)
-      .enter().append("text")
-      .attr("id", "node_label")
-      .attr("x", function(d) { return d.x - 10; })
-      .attr("y", function(d) { return d.y - 5; })
-      .text(function(d) {return d.id; } );
+   // draw top and side
+    svg.append("line")
+       .attr("id", "wall_top")
+       .attr("x1", maze_x)
+       .attr("y1", maze_y)
+       .attr("x2", maze_n*(cell_size + cell_space) + maze_x)
+       .attr("y2", maze_y) 
+       .style('stroke-width', wall_stroke)
+       .style("stroke", "black");
+
+    svg.append("line")
+       .attr("id", "wall_left")
+       .attr("x1", maze_x)
+       .attr("y1", maze_y)
+       .attr("x2", maze_x)
+       .attr("y2", maze_n*(cell_size + cell_space) + maze_y) 
+       .style('stroke-width', wall_stroke)
+       .style("stroke", "black");
+
+
+   // CARVE OUT THE MAZE
+   // For all the connections delete the link
+   for(l in graph_data.links) {
+       var cell1 = graph_data.links[l].source;
+       var cell2 = graph_data.links[l].target;
+       d3.select("#wall_"+cell1+"_"+cell2).remove();
+   }
+
 
    initBFS();
 
