@@ -32,7 +32,7 @@ var queued_colour = "#ffe119";
 var active_colour = "#f58231";
 
 
-var start_node_id = undefined;
+var start_node_id = 0;
 
 // Use a force layout to plot the graph
 // force directed layout has been adapted from https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8
@@ -279,7 +279,7 @@ function visAddItem(node_id){
           .attr("x", queue_x + queue_item_w/4)
           .attr("y", queue_y + queue_item_h/2 + 4)
           .style("font-family", "serif")
-	      .style("opacity", 1.0)
+	  .style("opacity", 1.0)
           .style("font-size", 18)
           .text(node_id);
 
@@ -304,8 +304,8 @@ function visRemoveItem() {
 // Enque dot (a dot that shows what is being enqued)
 function dotEnque(node_id) {
     // animates a dot moving from node_id on the graph and pushing an item into the queue
-    var start_x = d3.select("#node_"+node_id).attr("cx");
-    var start_y = d3.select("#node_"+node_id).attr("cy");
+    var start_x = d3.select("#cell_"+node_id).attr("x");
+    var start_y = d3.select("#cell_"+node_id).attr("y");
 
     var Tlen = 800;
 
@@ -323,7 +323,7 @@ function dotEnque(node_id) {
 
      setTimeout( function() {
         visAddItem(node_id);
-         setTimeout( function() { d3.select("#enque_dot").remove(); }, 150);
+        setTimeout( function() { d3.select("#enque_dot").remove(); }, 150);
      }, Tlen - 250);
 
 }
@@ -331,8 +331,8 @@ function dotEnque(node_id) {
 // Deque dot (a dot that shows what is being dequed)
 function dotDeque(node_id) {
     // animates a dot moving from node_id on the graph and pushing an item into the queue
-    var end_x = d3.select("#node_"+node_id).attr("cx");
-    var end_y = d3.select("#node_"+node_id).attr("cy");
+    var end_x = d3.select("#cell_"+node_id).attr("x");
+    var end_y = d3.select("#cell_"+node_id).attr("y");
     var Tlen = 800;
 
      svg.append("circle")
@@ -364,7 +364,7 @@ function Queue() {
 Queue.prototype.enque = function (e) {
 	this.elements.push(e);
 	//visAddItem(e);
-	dotEnque(e);
+	//dotEnque(e);
 };
 
 // peek
@@ -406,11 +406,11 @@ function hasVisited(node_id) {
 function neighbours(node_id) {
 	n = []; // the list of neighbours of node_id
 	for(var l in graph_data.links) {
-		if(graph_data.links[l].source.id == node_id) {
-			n.push(graph_data.links[l].target.id);
+		if(graph_data.links[l].source == node_id) {
+			n.push(graph_data.links[l].target);
 		}
-		if(graph_data.links[l].target.id == node_id) {
-			n.push(graph_data.links[l].source.id);
+		if(graph_data.links[l].target == node_id) {
+			n.push(graph_data.links[l].source);
 		}
 	}
 	return n;
@@ -467,7 +467,7 @@ function enableControls() {
 // play the simulation at a certain speed
 // disable all other controls while this is happening
 var playing = false;
-var playback_speed = 800;
+var playback_speed = 5;
 function playback(){
     setTimeout(function () {
 
@@ -512,26 +512,12 @@ function reenableEdges(){
 
 // changes the colour, and opacity
 function nodeVisitedVis(node_id) {
-    d3.select("#node_"+node_id).style("opacity", "0.3").style("fill",visited_colour);
+    d3.select("#cell_"+node_id).style("opacity", "0.3").style("fill",visited_colour);
     dimEdges(node_id);
 }
 
 // highlight the current node
 function nodeHighlight(node_id) {
-  d3.selectAll("#node_highlight").remove(); 	
-
-  var cx = d3.select("#node_"+node_id).attr("cx");
-  var cy = d3.select("#node_"+node_id).attr("cy");
-
-  d3.select(".nodes")
-     .append("circle")
-     .attr("id", "node_highlight")
-     .attr("cx", cx)
-     .attr("cy", cy)
-     .attr("r", node_size + node_size*0.2)
-     .style("stroke", "#800000")
-     .style("fill", "none")
-     .style("stroke-width", 2);
 
 };
 
@@ -551,7 +537,7 @@ function stepBFS() {
 	        console.log("\t finished");
 	        nodeVisitedVis(current_node);
 	        nodeHighlightClear();
-		    fin = true;
+		fin = true;
             if(shortest_path_curr_id != start_node_id) {
                 shortest_path.push(shortest_path_curr_id);
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
@@ -562,23 +548,21 @@ function stepBFS() {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
 	        console.log("\tDEQUE: Exploring new node " + current_node);
-            	dotDeque(current_node);
+            	//dotDeque(current_node);
 
 	        up_next = neighbours(current_node);
 	        console.log("\tNeighbours: ");
 	        console.log(up_next);
-	        playback_speed = 500;
 	    } 
 	} else {
-	    playback_speed = 800;
 	    var nnode = up_next.shift();
-        nodeHighlight(nnode);
+       	    nodeHighlight(nnode);
 	    if(!hasVisited(nnode)) {
-            nodeColour(nnode, queued_colour);
+                nodeColour(nnode, queued_colour);
 	        console.log("\tENQUE: Adding Neighbour " + nnode); 
 	    	node_queue.enque(nnode);
 	        visited.push(nnode);
-            addParentArray(nnode, current_node);
+                addParentArray(nnode, current_node);
 	    }
 	}
 
@@ -586,16 +570,19 @@ function stepBFS() {
 
 // initialise the BFS
 function initBFS() {
+	current_node = start_node_id;
 	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-    if(start_node_id != undefined) {
+    	if(start_node_id != undefined) {
 	    //node_queue.enque(start_node_id);
 	    nodeVisitedVis(current_node);
 	    current_node = start_node_id;
-        nodeColour(current_node, active_colour);
-        nodeHighlight(current_node);
+            nodeColour(current_node, active_colour);
+            nodeHighlight(current_node);
 
-        up_next = neighbours(current_node);
-        visited.push(current_node);
+            up_next = neighbours(current_node);
+	    console.log("Init");
+	    console.log(up_next);
+            visited.push(current_node);
     }
 }
 
@@ -649,7 +636,7 @@ d3.json(graph_json, function(error, graph) {
    for(var y=0; y<maze_n; y++) {
         for(var x=0; x<maze_n; x++) {
        		svg.append("rect")
-	           .attr("id", getIdent(x,y,maze_n))
+	           .attr("id", "cell_"+getIdent(x,y,maze_n))
 	           .attr("x", x*(cell_size + cell_space) + maze_x)
 	           .attr("y", y*(cell_size + cell_space) + maze_y)
 	           .attr("height", cell_size)
