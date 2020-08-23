@@ -540,16 +540,28 @@ function nodeHighlightClear(){
 var shortest_path_curr_id = 35;
 
 // Adds a small dot for the shortest path
-function addSPDot(node_id) {
-	var sp_x = parseInt(d3.select("#cell_"+node_id).attr("x"));
-	var sp_y = parseInt(d3.select("#cell_"+node_id).attr("y"));
+function addSPDot(prev_node_id, node_id) {
+	var csp_x = parseInt(d3.select("#cell_"+node_id).attr("x"));
+	var csp_y = parseInt(d3.select("#cell_"+node_id).attr("y"));
+
+	var psp_x =  parseInt(d3.select("#cell_"+prev_node_id).attr("x"));
+	var psp_y =  parseInt(d3.select("#cell_"+prev_node_id).attr("y"));
 	
 	svg.append("circle")
 	   .attr("id", "shortest_path_dot")
-	   .attr("cx", sp_x + cell_size/2)
-	   .attr("cy", sp_y + cell_size/2)
-	   .attr("r", 2)
+	   .attr("cx", csp_x + cell_size/2)
+	   .attr("cy", csp_y + cell_size/2)
+	   .attr("r", 6)
 	   .style("fill", "red");
+
+	svg.append("line")
+	   .attr("id", "shortest_path_dot")
+	   .attr("x1", csp_x + cell_size/2)
+	   .attr("y1", csp_y + cell_size/2)
+	   .attr("x2", psp_x + cell_size/2)
+	   .attr("y2", psp_y + cell_size/2)
+	   .style("stroke", "red")
+	   .style("stroke-width", 6);
 }
 
 // sets the colour of a node during the shortest path finding
@@ -557,6 +569,7 @@ function shortestPathColour(node_id) {
 	d3.select("#node_"+node_id).style("fill", "red");
 }
 
+var shortest_path_prev_id = shortest_path_curr_id;
 // step the BFS forward one position
 function stepBFS() {
 	if(up_next.length == 0) {
@@ -565,12 +578,13 @@ function stepBFS() {
 	        nodeHighlightClear();
 		fin = true;
             if(shortest_path_curr_id != start_node_id) {
-		        addSPDot(shortest_path_curr_id);
+		        addSPDot(shortest_path_prev_id,shortest_path_curr_id);
 		    	shortestPathColour(shortest_path_curr_id);
                 	shortest_path.push(shortest_path_curr_id);
+		    	shortest_path_prev_id = shortest_path_curr_id;
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
             } else {
-		addSPDot(shortest_path_curr_id);
+		addSPDot(shortest_path_prev_id, shortest_path_curr_id);
 		shortestPathColour(shortest_path_curr_id);
 		shortest_path_fin = true;
             }
