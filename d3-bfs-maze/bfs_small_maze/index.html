@@ -65,7 +65,7 @@ function addLabel(x, y, text_in) {
 //         Shortest path parent array 
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 var parent_array_x = 50;
-var parent_array_y = 650;
+var parent_array_y = 700;
 
 var parray_item_w = 20;
 var parray_item_h = 20;
@@ -122,10 +122,12 @@ function addParentArray(node_id, parent_id){
 
 // Captures the shortest path
 var shortest_path = [];
+var sp_flip = true;
 
 // shotests path step
 function shortestPathStep(src) {
-    d3.selectAll("#sp_arrow").remove(); 
+    //d3.selectAll("#sp_arrow").remove(); 
+   
     if(src != start_node_id) {
         // highlight the node
         d3.select("#parent_array_"+src).style("fill", active_colour);
@@ -135,6 +137,18 @@ function shortestPathStep(src) {
         var dest_x = parent_array_x + (dest)*(parray_item_w + parray_item_spacing);
         var src_x = parent_array_x + (src)*(parray_item_w + parray_item_spacing);
 
+	var sp_path_y_start;
+	var sp_path_y_end;
+	if(sp_flip) {
+		sp_path_y_start = parent_array_y;
+		sp_path_y_end = parent_array_y - 50;
+		sp_flip = false;
+        } else {
+		sp_path_y_start = parent_array_y + parray_item_h;
+		sp_path_y_end = parent_array_y + parray_item_h + 35;
+		sp_flip = true;
+	}
+
         // Draw the arrows connecting them
         svg.append("line")
            .attr("id", "sp_arrow")
@@ -142,9 +156,9 @@ function shortestPathStep(src) {
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", src_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h)
+           .attr("y1", sp_path_y_start)
            .attr("x2", src_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
 
         svg.append("line")
            .attr("id", "sp_arrow")
@@ -152,9 +166,9 @@ function shortestPathStep(src) {
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", src_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h + 10)
+           .attr("y1", sp_path_y_end)
            .attr("x2", dest_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
 
         svg.append("line")
            .attr("id", "sp_arrow")
@@ -162,11 +176,10 @@ function shortestPathStep(src) {
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", dest_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h)
+           .attr("y1", sp_path_y_start)
            .attr("x2", dest_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
         
-
         return dest;
     }
     return start_node_id;
