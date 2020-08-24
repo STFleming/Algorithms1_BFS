@@ -497,6 +497,7 @@ function playback(){
 // change the colour of a given node 
 function nodeColour(node_id, colour) {
     d3.select("#node_"+node_id).style("fill", colour); 	
+    d3.select("#cell_"+node_id).style("fill", colour);
 }
 
 // For all links connected to a node dim it's edges
