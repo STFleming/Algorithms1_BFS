@@ -577,11 +577,11 @@ function stepBFS() {
 	    if(node_queue.isEmpty()) {
 	        nodeVisitedVis(current_node);
 	        nodeHighlightClear();
-		fin = true;
+		    fin = true;
             if(shortest_path_curr_id != start_node_id) {
 		        addSPDot(shortest_path_prev_id,shortest_path_curr_id);
 		    	shortestPathColour(shortest_path_curr_id);
-                	shortest_path.push(shortest_path_curr_id);
+               	shortest_path.push(shortest_path_curr_id);
 		    	shortest_path_prev_id = shortest_path_curr_id;
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
             } else {
