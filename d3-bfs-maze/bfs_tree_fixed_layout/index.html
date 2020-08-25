@@ -73,9 +73,9 @@ function neighbours(node_id) {
 		if(graph_data.links[l].source == node_id) {
 			n.push(graph_data.links[l].target);
 		}
-		if(graph_data.links[l].target == node_id) {
-			n.push(graph_data.links[l].source);
-		}
+		//if(graph_data.links[l].target == node_id) {
+		//	n.push(graph_data.links[l].source);
+		//}
 	}
 	return n;
 }
@@ -183,16 +183,68 @@ function drawNode(x,y,id,level) {
 var node_loc = {};
 function drawLink(source_id, target_id){
 
+  var arrowPoints = [[0, 0], [0, 20], [20, 10]];
+
+  svg
+    .append('defs')
+    .append('marker')
+    .attr('id', 'arrow')
+    .attr('viewBox', [0, 0, 20, 20])
+    .attr('refX', 50)
+    .attr('refY', 10)
+    .attr('markerWidth', 20)
+    .attr('markerHeight', 20)
+    .attr('orient', 'auto-start-reverse')
+    .append('path')
+    .attr('d', d3.line()(arrowPoints))
+    .attr('stroke', 'black');
+
   svg.append("line")
       .attr("x1", function(d) { return node_loc[source_id][0]; })
       .attr("y1", function(d) { return node_loc[source_id][1]; })
       .attr("x2", function(d) { return node_loc[target_id][0]; })
       .attr("y2", function(d) { return node_loc[target_id][1]; })
       .style("stroke", "black")
+      .attr("marker-end", 'url(#arrow)')
       .style("stroke-width", link_width);
 }
 
-var tree_y_base = 100;
+function addNote(x,y, note){
+	svg.append("text")
+	   .attr("x", x)
+	   .attr("y", y)
+           .style("font-family", "serif")
+           .style("font-size", 18)
+	   .text(note);
+}
+
+function drawKey(x,y) {
+	// Draw a rect around the key
+	svg.append("rect")
+	   .attr("x",x-25)
+	   .attr("y", y-25)
+	   .attr("width", 220)
+	   .attr("height", 150)
+	   .style("fill", "none")
+	   .style("stroke", "gainsboro")
+	   .style("stroke-dasharray", ("3,3"))
+	   .style("stroke-width", 3);
+
+	addLabel(x + 50,y, "Key");
+	drawNode(x,y+25, "key_visited", 0);
+	d3.select("#node_key_visited").style("fill", visited_colour);
+	addNote(x+25,y+30, "- a visited vertex");
+
+	drawNode(x,y+60, "key_frontier", 0);
+	d3.select("#node_key_frontier").style("fill", next_up_colour);
+	addNote(x+25,y+65, "- an upcoming vertex");
+
+	drawNode(x,y+95, "key_unvisited", 0);
+	d3.select("#node_key_unvisited").style("fill", unvisited_colour);
+	addNote(x+25,y+100, "- an unvisited vertex");
+}
+
+var tree_y_base = 200;
 var level_dist = 100;
 
 d3.json(graph_json, function(error, graph) {
@@ -221,6 +273,9 @@ d3.json(graph_json, function(error, graph) {
    addLabel(50,35,"Controls");
    addButton(150, 15, "step()", stepBFS); 
    addButton(250, 15, "reset()", resetBFS); 
+
+
+   drawKey(700,35);
 });
 
 //d3.json(graph_json, function(error, graph) {

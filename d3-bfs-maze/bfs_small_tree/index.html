@@ -166,6 +166,54 @@ function addLabel(x, y, text_in) {
 	   .text(text_in);
 }
 
+function drawNode(x,y,id,level) {
+        svg.append("circle")
+            .attr("id", function(d) { return "node_" + id; })
+            .attr("cx", x)
+            .attr("cy", y)
+            .attr("r", node_size - 2*level)
+            .on("click", function(d) { start_node_id = id; initBFS(); })
+            .style("stroke", "black")
+            .style("stroke-width", 0)
+            .style("fill", unvisited_colour);
+}
+
+function addNote(x,y, note){
+        svg.append("text")
+           .attr("x", x)
+           .attr("y", y)
+           .style("font-family", "serif")
+           .style("font-size", 18) 
+           .text(note);
+}
+
+function drawKey(x,y) {
+        // Draw a rect around the key
+        svg.append("rect")
+           .attr("x",x-25)
+           .attr("y", y-25)
+           .attr("width", 220)
+           .attr("height", 150)
+           .style("fill", "none")
+           .style("stroke", "gainsboro")
+           .style("stroke-dasharray", ("3,3"))
+           .style("stroke-width", 3);
+
+        addLabel(x + 50,y, "Key");
+        drawNode(x,y+25, "key_visited", 0); 
+        d3.select("#node_key_visited").style("fill", visited_colour);
+        addNote(x+25,y+30, "- a visited vertex");
+
+        drawNode(x,y+60, "key_frontier", 0); 
+        d3.select("#node_key_frontier").style("fill", next_up_colour);
+        addNote(x+25,y+65, "- an upcoming vertex");
+
+        drawNode(x,y+95, "key_unvisited", 0); 
+        d3.select("#node_key_unvisited").style("fill", unvisited_colour);
+        addNote(x+25,y+100, "- an unvisited vertex");
+}
+
+
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
@@ -223,6 +271,8 @@ d3.json(graph_json, function(error, graph) {
    addLabel(50,35,"Controls");
    addButton(150, 15, "step()", stepBFS); 
    addButton(250, 15, "reset()", resetBFS); 
+
+   drawKey(675,450);
 
 });
 
