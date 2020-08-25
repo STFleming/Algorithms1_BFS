@@ -22,7 +22,6 @@ text {
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
-
 // graph.json
 var graph_json = "tree_graph.json";
 
@@ -70,7 +69,7 @@ function addLabel(x, y, text_in) {
 //         Shortest path parent array 
 // -=-=-=--=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 var parent_array_x = 100;
-var parent_array_y = 950;
+var parent_array_y = 100;
 
 var parray_item_w = 20;
 var parray_item_h = 20;
@@ -126,12 +125,24 @@ function addParentArray(node_id, parent_id){
     parent_array[node_id] = parent_id;
 }
 
+// alters the colour when a node has been visited SP algorithm
+function visitSP(prev_node_id, node_id){
+    d3.select("#node_"+node_id).style("fill", "#ff8080");
+    d3.select("#node_"+node_id).style("opacity", 1.0);
+    d3.select("#link_"+node_id+"_"+prev_node_id).style("opacity", 1.0);
+    d3.select("#link_"+node_id+"_"+prev_node_id).style("stroke", "#ff8080");
+    d3.select("#link_"+prev_node_id+"_"+node_id).style("opacity", 1.0);
+    d3.select("#link_"+prev_node_id+"_"+node_id).style("stroke", "#ff8080");
+}
+
 // Captures the shortest path
 var shortest_path = [];
+var sp_flip = true;
 
 // shotests path step
 function shortestPathStep(src) {
     d3.selectAll("#sp_arrow").remove(); 
+   
     if(src != start_node_id) {
         // highlight the node
         d3.select("#parent_array_"+src).style("fill", active_colour);
@@ -141,38 +152,49 @@ function shortestPathStep(src) {
         var dest_x = parent_array_x + (dest-1)*(parray_item_w + parray_item_spacing);
         var src_x = parent_array_x + (src-1)*(parray_item_w + parray_item_spacing);
 
+    var sp_path_y_start;
+    var sp_path_y_end;
+    if(sp_flip) {
+        sp_path_y_start = parent_array_y;
+        sp_path_y_end = parent_array_y - 30;
+        sp_flip = false;
+        } else {
+        sp_path_y_start = parent_array_y + parray_item_h;
+        sp_path_y_end = parent_array_y + parray_item_h + 15;
+        sp_flip = true;
+    }
+
         // Draw the arrows connecting them
         svg.append("line")
            .attr("id", "sp_arrow")
-           .style("stroke", "gainsboro")
+           .style("stroke", "red")
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", src_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h)
+           .attr("y1", sp_path_y_start)
            .attr("x2", src_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
 
         svg.append("line")
            .attr("id", "sp_arrow")
-           .style("stroke", "gainsboro")
+           .style("stroke", "red")
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", src_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h + 10)
+           .attr("y1", sp_path_y_end)
            .attr("x2", dest_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
 
         svg.append("line")
            .attr("id", "sp_arrow")
-           .style("stroke", "gainsboro")
+           .style("stroke", "red")
            .style("stroke-width", 2)
            .style("stroke-dasharray", ("3,3"))
            .attr("x1", dest_x + parray_item_w/2)
-           .attr("y1", parent_array_y + parray_item_h)
+           .attr("y1", sp_path_y_start)
            .attr("x2", dest_x + parray_item_w/2)
-           .attr("y2", parent_array_y + parray_item_h + 10);
+           .attr("y2", sp_path_y_end);
         
-
         return dest;
     }
     return start_node_id;
@@ -426,9 +448,25 @@ var fin = false;
 
 // reset the BFS
 function resetBFS() {
+    d3.selectAll("#start_circle").remove();
+    d3.selectAll("#end_circle").remove();
+
 	for(var node in graph_data.nodes) {
 		d3.select("#node_" + graph_data.nodes[node].id).style("fill", unvisited_colour).style("opacity", "1.0");  
+		d3.select("#parent_array_"+graph_data.nodes[node].id).style("fill", "white");
+		d3.select("#parent_array_"+graph_data.nodes[node].id).style("stroke-width", 0.5);
+		d3.select("#parent_array_"+graph_data.nodes[node].id).style("stroke", "black");
 	}
+
+    for(var l in graph_data.links){
+        d3.select("#link_"+graph_data.links[l].source.id+"_"+graph_data.links[l].target.id).style("stroke", "gainsboro");
+    }
+
+    // clear the parent array
+    d3.selectAll("#parent_array_entry").remove();
+    d3.selectAll("#sp_arrow").remove();
+
+
 	visited = [];
 	up_next = [];
 	current_node = undefined;
@@ -547,6 +585,48 @@ function nodeHighlightClear(){
 
 // Shortest path variables
 var shortest_path_curr_id = 33;
+var shortest_path_prev_id = shortest_path_curr_id;
+
+// For the shortest path set the end node
+function sp_setEndNode(node_id) {
+    shortest_path_curr_id = node_id;
+    d3.select("#parent_array_"+node_id).style("stroke", "red");
+    d3.select("#parent_array_"+node_id).style("stroke-width", 2);
+    d3.select("#node_"+node_id).style("fill", "#ff8080");
+    
+    var s_x = parseInt(d3.select("#node_"+node_id).attr("cx")); 
+    var s_y = parseInt(d3.select("#node_"+node_id).attr("cy")); 
+
+    svg.append("circle")
+       .attr("id", "end_circle")
+       .attr("cx", s_x)
+       .attr("cy", s_y)
+       .attr("r", node_size *1.5)
+       .style("fill", "none")
+       .style("stroke", "#46ACC2")
+       .style("stroke-dasharray", ("3,3"))
+       .style("stroke-width", 4);
+};
+
+// for the sortest path set the start node
+function sp_setStartNode(node_id) {
+   start_node_id = node_id; 
+   // set the box in the parent array to grey
+   d3.select("#parent_array_"+node_id).style("fill", "gainsboro");  
+
+    var s_x = parseInt(d3.select("#node_"+node_id).attr("cx")); 
+    var s_y = parseInt(d3.select("#node_"+node_id).attr("cy")); 
+
+    svg.append("circle")
+       .attr("id", "start_circle")
+       .attr("cx", s_x)
+       .attr("cy", s_y)
+       .attr("r", node_size*1.5)
+       .style("fill", "none")
+       .style("stroke", "#A8C256")
+       .style("stroke-dasharray", ("3,3"))
+       .style("stroke-width", 4);
+};
 
 // step the BFS forward one position
 function stepBFS() {
@@ -554,15 +634,21 @@ function stepBFS() {
 	if(up_next.length == 0) {
 	    if(node_queue.isEmpty()) {
 	        console.log("\t finished");
-	        nodeVisitedVis(current_node);
-	        nodeHighlightClear();
-		    fin = true;
+
+            if(!fin) {
+	            nodeVisitedVis(current_node);
+	            nodeHighlightClear();
+            }
+
             if(shortest_path_curr_id != start_node_id) {
+                visitSP(shortest_path_prev_id, shortest_path_curr_id);
                 shortest_path.push(shortest_path_curr_id);
+                shortest_path_prev_id = shortest_path_curr_id;
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
             } else {
-                console.log(shortest_path);
+                visitSP(shortest_path_prev_id, shortest_path_curr_id);
             }
+		    fin = true;
 	    } else {
 	        nodeVisitedVis(current_node);
 	        current_node = node_queue.deque();	
@@ -632,6 +718,8 @@ function addButton(id, x, y, text_in, func) {
 
 }
 
+var set_start = true; // if true we set the start node when we click, otherwise we set the end
+
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
@@ -658,7 +746,8 @@ d3.json(graph_json, function(error, graph) {
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; })
-      .attr("stroke-width", link_width);
+      .style("stroke", "gainsboro")
+      .style("stroke-width", link_width);
 
   var node = svg.append("g")
       .attr("class", "nodes")
@@ -669,7 +758,18 @@ d3.json(graph_json, function(error, graph) {
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", node_size)
-      .on("click", function(d) { resetBFS(); start_node_id = d.id; initBFS(); })
+      .on("click", function(d) {  
+                                if(set_start) {
+                                    resetBFS();
+                                    sp_setStartNode(d.id); 
+                                    set_start = false;
+                                    initBFS(); 
+                                 } else {
+                                    sp_setEndNode(d.id);
+                                    set_start = true;
+                                    initBFS(); 
+                                 }
+                                 })
       .style("stroke", "black")
       .style("stroke-width", 2)
       .style("fill", unvisited_colour );

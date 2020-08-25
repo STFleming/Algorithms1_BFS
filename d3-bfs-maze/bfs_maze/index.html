@@ -526,18 +526,31 @@ function nodeHighlightClear(){
 var shortest_path_curr_id = 1599;
 
 // Adds a small dot for the shortest path
-function addSPDot(node_id) {
-	var sp_x = parseInt(d3.select("#cell_"+node_id).attr("x"));
-	var sp_y = parseInt(d3.select("#cell_"+node_id).attr("y"));
-	
-	svg.append("circle")
-	   .attr("id", "shortest_path_dot")
-	   .attr("cx", sp_x + cell_size/2)
-	   .attr("cy", sp_y + cell_size/2)
-	   .attr("r", 2)
-	   .style("fill", "red");
+function addSPDot(prev_node_id, node_id) {
+    var csp_x = parseInt(d3.select("#cell_"+node_id).attr("x"));
+    var csp_y = parseInt(d3.select("#cell_"+node_id).attr("y"));
+
+    var psp_x =  parseInt(d3.select("#cell_"+prev_node_id).attr("x"));
+    var psp_y =  parseInt(d3.select("#cell_"+prev_node_id).attr("y"));
+    
+    svg.append("circle")
+       .attr("id", "shortest_path_dot")
+       .attr("cx", csp_x + cell_size/2)
+       .attr("cy", csp_y + cell_size/2)
+       .attr("r", 1.5)   
+       .style("fill", "red");
+
+    svg.append("line")
+       .attr("id", "shortest_path_dot")
+       .attr("x1", csp_x + cell_size/2)
+       .attr("y1", csp_y + cell_size/2)
+       .attr("x2", psp_x + cell_size/2)
+       .attr("y2", psp_y + cell_size/2)
+       .style("stroke", "red")
+       .style("stroke-width", 3);
 }
 
+var shortest_path_prev_id = shortest_path_curr_id;
 // step the BFS forward one position
 function stepBFS() {
 	if(up_next.length == 0) {
@@ -546,11 +559,13 @@ function stepBFS() {
 	        nodeHighlightClear();
 		fin = true;
             if(shortest_path_curr_id != start_node_id) {
-		        addSPDot(shortest_path_curr_id);
-                	shortest_path.push(shortest_path_curr_id);
+                addSPDot(shortest_path_prev_id,shortest_path_curr_id);
+                shortest_path.push(shortest_path_curr_id);
+                shortest_path_prev_id = shortest_path_curr_id;
 		        shortest_path_curr_id = shortestPathStep(shortest_path_curr_id);
             } else {
-		shortest_path_fin = true;
+		        shortest_path_fin = true;
+		        addSPDot(shortest_path_prev_id, shortest_path_curr_id);
             }
 	    } else {
 	        nodeVisitedVis(current_node);
@@ -680,7 +695,7 @@ d3.json(graph_json, function(error, graph) {
     svg.append("line")
        .attr("id", "wall_left")
        .attr("x1", maze_x)
-       .attr("y1", maze_y)
+       .attr("y1", maze_y + cell_size)
        .attr("x2", maze_x)
        .attr("y2", maze_n*(cell_size + cell_space) + maze_y) 
        .style('stroke-width', wall_stroke)
@@ -695,6 +710,8 @@ d3.json(graph_json, function(error, graph) {
        d3.select("#wall_"+Math.min(cell1, cell2)+"_"+Math.max(cell1,cell2)).remove();
    }
 
+   // carve out the exit
+   d3.select("#wall_"+getIdent(maze_n-1,maze_n-1,maze_n)+"_"+getIdent(maze_n,maze_n-1,maze_n)).remove();
 
    initBFS();
 
