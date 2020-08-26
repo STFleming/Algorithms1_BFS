@@ -76,46 +76,46 @@ var parent_array = [];
 
 function drawParentArray(){
 
-    var pa_cx = parent_array_x;
+    //var pa_cx = parent_array_x;
     for(var n in graph_data.nodes){
-       svg.append("rect")
-          .attr("id", "parent_array_"+graph_data.nodes[n].id)
-          .attr("x", pa_cx)
-          .attr("y", parent_array_y)
-          .attr("height", parray_item_h)
-          .attr("width", parray_item_w)
-          .style("fill", "white")
-          .style("stroke-width", 0.5)
-          .style("stroke", "black")
-          .style("opacity", 1.0);
+    //   svg.append("rect")
+    //      .attr("id", "parent_array_"+graph_data.nodes[n].id)
+    //      .attr("x", pa_cx)
+    //      .attr("y", parent_array_y)
+    //      .attr("height", parray_item_h)
+    //      .attr("width", parray_item_w)
+    //      .style("fill", "white")
+    //      .style("stroke-width", 0.5)
+    //      .style("stroke", "black")
+    //      .style("opacity", 1.0);
 
-       svg.append("text")
-          .attr("id", "parent_array_label_"+graph_data.nodes[n].id)
-          .attr("x", pa_cx + 3)
-          .attr("y", parent_array_y - 10)
-          .style("font-family", "serif")
-	      .style("opacity", 1.0)
-          .style("font-size", 14)
-          .text(graph_data.nodes[n].id);
+    //   svg.append("text")
+    //      .attr("id", "parent_array_label_"+graph_data.nodes[n].id)
+    //      .attr("x", pa_cx + 3)
+    //      .attr("y", parent_array_y - 10)
+    //      .style("font-family", "serif")
+	//      .style("opacity", 1.0)
+    //      .style("font-size", 14)
+    //      .text(graph_data.nodes[n].id);
 
-        pa_cx += parray_item_w + parray_item_spacing;
+    //    pa_cx += parray_item_w + parray_item_spacing;
         parent_array.push(0);
     }
 }
 
 // Adds text to the parent array
 function addParentArray(node_id, parent_id){
-    d3.select("#parent_array_"+node_id).style("fill", visited_colour).style("opacity", 0.3);  
-    var x = parseInt(d3.select("#parent_array_"+node_id).attr("x"));
-    var y = parseInt(d3.select("#parent_array_"+node_id).attr("y"));
-    svg.append("text")
-       .attr("id", "parent_array_entry")
-       .attr("x", x + 3)
-       .attr("y", y + parray_item_h - parray_item_h/4)
-       .style("font-family", "serif")
-	   .style("opacity", 1.0)
-       .style("font-size", 14)
-       .text(parent_id);
+    //d3.select("#parent_array_"+node_id).style("fill", visited_colour).style("opacity", 0.3);  
+    //var x = parseInt(d3.select("#parent_array_"+node_id).attr("x"));
+    //var y = parseInt(d3.select("#parent_array_"+node_id).attr("y"));
+    //svg.append("text")
+    //   .attr("id", "parent_array_entry")
+    //   .attr("x", x + 3)
+    //   .attr("y", y + parray_item_h - parray_item_h/4)
+    //   .style("font-family", "serif")
+	//   .style("opacity", 1.0)
+    //   .style("font-size", 14)
+    //   .text(parent_id);
 
     parent_array[node_id] = parent_id;
 }
@@ -185,23 +185,21 @@ var vis_queue = [];
 var queue_x_end = 0;
 var q_bbox_margin = 15;
 
-addLabel(queue_x - 100, queue_y + queue_item_h/2, "Queue: "); 
-
 // Bounding box for the queue
 var min_q_size = (queue_item_w)/2;
 
 var q_width = min_q_size; 
 function drawQBox(){
-    svg.append("rect")
-       .attr("id", "qBoundBox")
-       .attr("x", queue_x - q_bbox_margin/2)
-       .attr("y", queue_y - q_bbox_margin/2)
-       .attr("height", queue_item_h + q_bbox_margin)
-       .attr("width", q_width)
-       .style("fill", "none")
-       .style("stroke-dasharray", ("3","3"))
-       .style("stroke-width", 1)
-       .style("stroke", "grey");
+    //svg.append("rect")
+    //   .attr("id", "qBoundBox")
+    //   .attr("x", queue_x - q_bbox_margin/2)
+    //   .attr("y", queue_y - q_bbox_margin/2)
+    //   .attr("height", queue_item_h + q_bbox_margin)
+    //   .attr("width", q_width)
+    //   .style("fill", "none")
+    //   .style("stroke-dasharray", ("3","3"))
+    //   .style("stroke-width", 1)
+    //   .style("stroke", "grey");
 };
 
 function updateQBox(adj_amount){
@@ -372,7 +370,7 @@ Queue.prototype.peek = function () {
 
 // deque
 Queue.prototype.deque = function() {
-	visRemoveItem();
+	//visRemoveItem();
 	return this.elements.shift();
 };
 
@@ -721,10 +719,7 @@ d3.json(graph_json, function(error, graph) {
    addButton("cntrl_reset", 250, 15, "reset()", resetBFS); 
    addButton("cntrl_play", 350, 15, "play()", playback); 
 
-    // The Queue
-    drawQBox();
 
-    // parent array
     drawParentArray();
 });
 
