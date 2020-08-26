@@ -261,9 +261,12 @@ d3.json(graph_json, function(error, graph) {
       .data(graph.nodes)
       .enter().append("text")
       .attr("id", "node_label")
-      .attr("x", function(d) { return d.x - 10; })
-      .attr("y", function(d) { return d.y - 5; })
+      .attr("x", function(d) { return d.x - 8; })
+      .attr("y", function(d) { return d.y + 3; })
+      .style("font-family", "serif")
+      .style("font-size", 14)
       .text(function(d) {return d.id; } );
+
 
    initBFS();
 
@@ -272,7 +275,7 @@ d3.json(graph_json, function(error, graph) {
    addButton(150, 15, "step()", stepBFS); 
    addButton(250, 15, "reset()", resetBFS); 
 
-   drawKey(675,450);
+   drawKey(50,475);
 
 });
 

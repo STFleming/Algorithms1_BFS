@@ -207,15 +207,18 @@ d3.json(graph_json, function(error, graph) {
       .style("stroke-width", 2)
       .style("fill", unvisited_colour );
 
-  var labels = svg.append("g")
+   var labels = svg.append("g")
       .attr("class", "labels")
       .selectAll("#node_label")
       .data(graph.nodes)
       .enter().append("text")
       .attr("id", "node_label")
-      .attr("x", function(d) { return d.x - 10; })
-      .attr("y", function(d) { return d.y - 5; })
+      .attr("x", function(d) { return d.x - 7; })
+      .attr("y", function(d) { return d.y + 3; })
+      .style("font-family", "serif")
+      .style("font-size", 18)
       .text(function(d) {return d.id; } );
+
 
    initBFS();
 
