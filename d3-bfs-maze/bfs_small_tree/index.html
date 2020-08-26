@@ -202,15 +202,15 @@ function drawKey(x,y) {
         addLabel(x + 50,y, "Key");
         drawNode(x,y+25, "key_visited", 0); 
         d3.select("#node_key_visited").style("fill", visited_colour);
-        addNote(x+25,y+30, "- a visited vertex");
+        addNote(x+25,y+30, "- a visited node");
 
         drawNode(x,y+60, "key_frontier", 0); 
         d3.select("#node_key_frontier").style("fill", next_up_colour);
-        addNote(x+25,y+65, "- an upcoming vertex");
+        addNote(x+25,y+65, "- an upcoming node");
 
         drawNode(x,y+95, "key_unvisited", 0); 
         d3.select("#node_key_unvisited").style("fill", unvisited_colour);
-        addNote(x+25,y+100, "- an unvisited vertex");
+        addNote(x+25,y+100, "- an unvisited node");
 }
 
 

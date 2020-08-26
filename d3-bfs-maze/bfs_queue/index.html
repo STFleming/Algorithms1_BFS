@@ -546,20 +546,20 @@ function drawKey(x,y) {
 
     drawNode(x,y+20, "key_active", 0);
     d3.select("#node_key_active").style("fill", active_colour);
-    addNote(x+25,y+25, "- the active vertex");
+    addNote(x+25,y+25, "- the active node");
 
     drawNode(x,y+45, "key_visited", 0);
     d3.select("#node_key_visited").style("fill", visited_colour);
     d3.select("#node_key_visited").style("opacity", 0.6);
-    addNote(x+25,y+50, "- a visited vertex");
+    addNote(x+25,y+50, "- a visited node");
 
     drawNode(x,y+70, "key_queued", 0);
     d3.select("#node_key_queued").style("fill", queued_colour);
-    addNote(x+25,y+75, "- a queued vertex");
+    addNote(x+25,y+75, "- a queued node");
 
     drawNode(x,y+95, "key_unvisited", 0); 
     d3.select("#node_key_unvisited").style("fill", unvisited_colour);
-    addNote(x+25,y+100, "- an unvisited vertex");
+    addNote(x+25,y+100, "- an unvisited node");
 }
 
 
