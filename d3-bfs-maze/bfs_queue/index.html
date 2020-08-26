@@ -242,7 +242,7 @@ function dotDeque(node_id) {
      setTimeout( function() {
 	    nodeColour(node_id, active_colour); 
 	    nodeHighlight(node_id);
-        setTimeout( function() { d3.select("#deque_dot").remove(); }, 250);
+        setTimeout( function() { d3.select("#deque_dot").remove(); }, 20);
      }, Tlen);
 
 }
@@ -612,8 +612,10 @@ d3.json(graph_json, function(error, graph) {
       .data(graph.nodes)
       .enter().append("text")
       .attr("id", "node_label")
-      .attr("x", function(d) { return d.x - 10; })
-      .attr("y", function(d) { return d.y - 5; })
+      .attr("x", function(d) { return d.x - 7; })
+      .attr("y", function(d) { return d.y + 3; })
+      .style("font-family", "serif")
+      .style("font-size", 18)
       .text(function(d) {return d.id; } );
 
    initBFS();
