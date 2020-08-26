@@ -509,6 +509,61 @@ function addButton(id, x, y, text_in, func) {
 
 }
 
+function addNote(x,y, note){
+    svg.append("text")
+       .attr("x", x)
+       .attr("y", y)
+           .style("font-family", "serif")
+           .style("font-size", 18)
+       .text(note);
+}
+
+function drawNode(x,y,id,level) {
+        svg.append("circle")
+            .attr("id", function(d) { return "node_" + id; })
+            .attr("cx", x)
+            .attr("cy", y)
+            .attr("r", 10)
+            .on("click", function(d) { start_node_id = id; initBFS(); })
+            .style("stroke", "black")
+            .style("stroke-width", 0)
+            .style("fill", unvisited_colour);
+}
+
+function drawKey(x,y) {
+    // Draw a rect around the key
+    svg.append("rect")
+       .attr("x",x-25)
+       .attr("y", y-25)
+       .attr("width", 220)
+       .attr("height", 150)
+       .style("fill", "none")
+       .style("stroke", "gainsboro")
+       .style("stroke-dasharray", ("3,3"))
+       .style("stroke-width", 3);
+  
+    addLabel(x + 50,y, "Key");
+
+    drawNode(x,y+20, "key_active", 0);
+    d3.select("#node_key_active").style("fill", active_colour);
+    addNote(x+25,y+25, "- the active vertex");
+
+    drawNode(x,y+45, "key_visited", 0);
+    d3.select("#node_key_visited").style("fill", visited_colour);
+    d3.select("#node_key_visited").style("opacity", 0.6);
+    addNote(x+25,y+50, "- a visited vertex");
+
+    drawNode(x,y+70, "key_queued", 0);
+    d3.select("#node_key_queued").style("fill", queued_colour);
+    addNote(x+25,y+75, "- a queued vertex");
+
+    drawNode(x,y+95, "key_unvisited", 0); 
+    d3.select("#node_key_unvisited").style("fill", unvisited_colour);
+    addNote(x+25,y+100, "- an unvisited vertex");
+}
+
+
+
 d3.json(graph_json, function(error, graph) {
   if (error) throw error;
   
@@ -571,6 +626,8 @@ d3.json(graph_json, function(error, graph) {
 
     // The Queue
     drawQBox();
+
+    drawKey(700,35);
 });
 
 
