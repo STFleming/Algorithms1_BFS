@@ -52,6 +52,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 var graph_data = [];
 
 var visited = [];
+var active = [];
 var bfs_queue = [];
 var up_next = [];
 
@@ -59,6 +60,7 @@ var up_next = [];
 
 // returns true if a node has already been visited
 // doing a linear walk over a visited list every node consideration is ridiculous but I'm in a hurry
+// this is optimised for the larger trees
 function hasVisited(node_id) {
 	for(var v in visited){
 		if(node_id == visited[v])
@@ -89,6 +91,7 @@ function resetBFS() {
 	}
 	visited = [];
 	up_next = [];
+	active = [];
 }
 
 // enque a node for processing in the next BFS step
@@ -116,9 +119,17 @@ function highlightNextUp(node_id) {
 function stepBFS() {
 	var curr_timestep = up_next;
 	up_next = [];
+
+    for(var a in active) {
+        visited.push(active[a]);
+		d3.select("#node_"+active[a]).style("fill", visited_colour);
+
+    }
+    active = [];
+
 	for(var i in curr_timestep) {
-		visited.push(curr_timestep[i]);
-		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
+	    active.push(curr_timestep[i]);
+		d3.select("#node_"+curr_timestep[i]).style("fill", active_colour);
 		highlightNextUp(curr_timestep[i]);
 	}
 }
@@ -126,8 +137,8 @@ function stepBFS() {
 // initialise the BFS
 function initBFS() {
 	resetBFS();
-	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-	visited.push(start_node_id);
+	d3.select("#node_"+start_node_id).style("fill", active_colour);
+	active.push(start_node_id);
 	highlightNextUp(start_node_id);
 }
 

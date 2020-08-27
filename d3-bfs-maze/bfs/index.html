@@ -26,9 +26,10 @@ text {
 // graph.json
 var graph_json = "simple_graph.json";
 
-var visited_colour = "orange";
+var visited_colour = "#bfef45";
+var active_colour = "#f58231";
 var unvisited_colour = "gainsboro";
-var next_up_colour = "green";
+var next_up_colour = "#ffe119";
 
 var node_size = 25;
 var force_strength = -360;
@@ -48,6 +49,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var graph_data = [];
 
+var active = [];
 var visited = [];
 var bfs_queue = [];
 var up_next = [];
@@ -111,20 +113,28 @@ function highlightNextUp(node_id) {
 
 // step the BFS forward one position
 function stepBFS() {
-	var curr_timestep = up_next;
-	up_next = [];
-	for(var i in curr_timestep) {
-		visited.push(curr_timestep[i]);
-		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
-		highlightNextUp(curr_timestep[i]);
-	}
+    var curr_timestep = up_next;
+    up_next = [];
+
+    for(var a in active) {
+        visited.push(active[a]);
+        d3.select("#node_"+active[a]).style("fill", visited_colour);
+
+    }
+    active = [];
+
+    for(var i in curr_timestep) {
+        active.push(curr_timestep[i]);
+        d3.select("#node_"+curr_timestep[i]).style("fill", active_colour);
+        highlightNextUp(curr_timestep[i]);
+    }
 }
 
 // initialise the BFS
 function initBFS() {
 	resetBFS();
-	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-	visited.push(start_node_id);
+	d3.select("#node_"+start_node_id).style("fill", active_colour);
+	active.push(start_node_id);
 	highlightNextUp(start_node_id);
 }
 

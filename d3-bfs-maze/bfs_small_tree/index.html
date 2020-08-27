@@ -26,9 +26,11 @@ text {
 // graph.json
 var graph_json = "tree_graph.json";
 
-var visited_colour = "orange";
-var unvisited_colour = "gainsboro";
-var next_up_colour = "green";
+
+var visited_colour = "#bfef45";
+var active_colour = "#f58231";   
+var unvisited_colour = "gainsboro";       
+var next_up_colour = "#ffe119";
 
 var node_size = 15;
 var force_strength = -160;
@@ -49,6 +51,7 @@ var color = d3.scaleOrdinal(d3.schemeCategory20);
 var graph_data = [];
 
 var visited = [];
+var active = [];
 var bfs_queue = [];
 var up_next = [];
 
@@ -111,20 +114,28 @@ function highlightNextUp(node_id) {
 
 // step the BFS forward one position
 function stepBFS() {
-	var curr_timestep = up_next;
-	up_next = [];
-	for(var i in curr_timestep) {
-		visited.push(curr_timestep[i]);
-		d3.select("#node_"+curr_timestep[i]).style("fill", visited_colour);
-		highlightNextUp(curr_timestep[i]);
-	}
+    var curr_timestep = up_next;
+    up_next = [];
+
+    for(var a in active) {
+        visited.push(active[a]);
+        d3.select("#node_"+active[a]).style("fill", visited_colour);
+
+    }
+    active = [];
+
+    for(var i in curr_timestep) {
+        active.push(curr_timestep[i]);
+        d3.select("#node_"+curr_timestep[i]).style("fill", active_colour);
+        highlightNextUp(curr_timestep[i]);
+    }
 }
 
 // initialise the BFS
 function initBFS() {
 	resetBFS();
-	d3.select("#node_"+start_node_id).style("fill", visited_colour);
-	visited.push(start_node_id);
+	d3.select("#node_"+start_node_id).style("fill", active_colour);
+	active.push(start_node_id);
 	highlightNextUp(start_node_id);
 }
 
@@ -193,24 +204,30 @@ function drawKey(x,y) {
            .attr("x",x-25)
            .attr("y", y-25)
            .attr("width", 220)
-           .attr("height", 150)
+           .attr("height", 180)
            .style("fill", "none")
            .style("stroke", "gainsboro")
            .style("stroke-dasharray", ("3,3"))
            .style("stroke-width", 3);
 
-        addLabel(x + 50,y, "Key");
-        drawNode(x,y+25, "key_visited", 0); 
-        d3.select("#node_key_visited").style("fill", visited_colour);
-        addNote(x+25,y+30, "- a visited node");
+    addLabel(x + 50,y, "Key");
 
-        drawNode(x,y+60, "key_frontier", 0); 
-        d3.select("#node_key_frontier").style("fill", next_up_colour);
-        addNote(x+25,y+65, "- an upcoming node");
+    drawNode(x,y+25, "key_active", 0);
+    d3.select("#node_key_active").style("fill", active_colour);
+    addNote(x+25,y+30, "- an active node");
 
-        drawNode(x,y+95, "key_unvisited", 0); 
-        d3.select("#node_key_unvisited").style("fill", unvisited_colour);
-        addNote(x+25,y+100, "- an unvisited node");
+    drawNode(x,y+60, "key_visited", 0);
+    d3.select("#node_key_visited").style("fill", visited_colour);
+    addNote(x+25,y+65, "- a visited node");
+
+    drawNode(x,y+95, "key_frontier", 0);
+    d3.select("#node_key_frontier").style("fill", next_up_colour);
+    addNote(x+25,y+100, "- an upcoming node");
+
+    drawNode(x,y+130, "key_unvisited", 0);
+    d3.select("#node_key_unvisited").style("fill", unvisited_colour);
+    addNote(x+25,y+135, "- an unvisited node");
+
 }
 
 
@@ -275,7 +292,7 @@ d3.json(graph_json, function(error, graph) {
    addButton(150, 15, "step()", stepBFS); 
    addButton(250, 15, "reset()", resetBFS); 
 
-   drawKey(50,475);
+   drawKey(50,425);
 
 });
 
