@@ -85,7 +85,6 @@ function neighbours(node_id) {
 function resetBFS() {
 	for(var node in graph_data.nodes) {
 		d3.select("#node_" + graph_data.nodes[node].id).style("fill", unvisited_colour);  
-		d3.select("#node_" + graph_data.nodes[node].id).style("opacity", r);  
 	}
 	visited = [];
 	up_next = [];
