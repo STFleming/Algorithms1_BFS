@@ -2,6 +2,7 @@
 
 import sys, getopt
 import random
+import math
 
 def main(argv):
     outputfile = ''
@@ -41,11 +42,12 @@ def main(argv):
 
     for nline in nodes:
         for n in nline: 
-            for d in range(random.randint(0,degree)):
-                target_dist_x = random.randint(-locality, locality)
-                target_x = (n[0] + target_dist_x) % numnodes
-                target_dist_y = random.randint(-locality, locality)
-                target_y = (n[1] + target_dist_y) % numnodes
+            for d in range(random.randint(1,degree)):
+                target_x = n[0]+random.randint(0, locality)
+                target_y = n[1]+random.randint(0, locality)
+                while(math.sqrt( (target_x * n[0]) + (target_y * n[1])) > locality):
+                    target_x = n[0]+random.randint(0, locality)
+                    target_y = n[1]+random.randint(0, locality)
                 target_node = nodes[target_x][target_y]
                 connection = [n, target_node]
                 links.append(connection)

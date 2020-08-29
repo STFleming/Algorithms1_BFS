@@ -193,7 +193,6 @@ function visAddItem(node_id){
 
    visShuffleAlong();
    updateQBox(queue_item_w + queue_item_spacing);
-   console.log("Adding item");
 
    // New item appears after a delay to allow the shuffle to happen
    var delay = (vis_queue.length == 0) ? 0 : 150;
@@ -332,30 +331,34 @@ var total_depth = 0;
 var incre = 0;
 
 function pushQ() {
-	svg.append("rect")
-	   .attr("id", "pushitem")
-	   .attr("x",0) 
-	   .attr("y",250)
-	   .attr("width", 30)
-	   .attr("height", 70)
-	   .style("fill", color(incre))
-	   .style("stroke", color(incre))
-	   .transition()
-	   .attr("x", 250)
-	   .duration(750)
-	   .delay(250);
+	if(total_depth < 7) {
+	    total_depth++;
+	    incre++;
+	    svg.append("rect")
+	       .attr("id", "pushitem")
+	       .attr("x",0) 
+	       .attr("y",250)
+	       .attr("width", 30)
+	       .attr("height", 70)
+	       .style("fill", color(incre))
+	       .style("stroke", color(incre))
+	       .transition()
+	       .attr("x", 250)
+	       .duration(750)
+	       .delay(250);
 
-	setTimeout(function() {
-		node_queue.enque(incre);
-		d3.select("#pushitem").remove();
-	}, 750);
+	    setTimeout(function() {
+	    	node_queue.enque(incre);
+	    	d3.select("#pushitem").remove();
+	    }, 750);
+	}
 
 }
 
 function popQ() {
 
 	var color_id = node_queue.deque(); 
-	console.log("popping: " + color_id);
+	total_depth = total_depth - 1;
 
 	svg.append("rect")
 	   .attr("id", "popitem")
@@ -375,20 +378,51 @@ function popQ() {
 
 }
 
-setTimeout( function() {
-   setInterval ( function() {
-   		total_depth++;
-   		incre++;
-	   	pushQ();
-   }, 1000);
-}, 500);
+// Adds a button that when triggered executes func()
+function addButton(id, x, y, text_in, func) {
+   var button_width = 120;
+   var button_height = 30;
 
-setInterval ( function() {
-	if(total_depth >= 7) {
-	  popQ();
-	  total_depth--;
-	}
-}, 1000);
+  var button_text = svg.append("text")
+      .attr("x", x + button_width/4 - text_in.length + 5)
+      .attr("y", y + button_height/2 + 4)
+      .style("font-family", "serif")
+      .style("font-size", 18)
+      .text(text_in);
+
+   var button = svg.append("rect")
+      .attr("id", id)
+      .attr("x", x)
+      .attr("y", y)
+      .attr("height", button_height)
+      .attr("width", button_width)
+      .style("fill", "white")
+      .style("stroke-width", 2)
+      .style("stroke", "black")
+      .style("opacity", 0.3)
+        .on("mouseover", function() { d3.select(this).style("fill", queued_colour); d3.select(this).style("opacity", 0.3);} )
+      .on("mouseout",  function() { d3.select(this).style("fill", "white"); })
+      .on("click", function() { func();});
+
+}
+
+addButton("enque_but", 160, 350, "enqueue()", pushQ);
+addButton("deque_but", 440, 350, "dequeue()", popQ);
+
+//setTimeout( function() {
+//   setInterval ( function() {
+//   		total_depth++;
+//   		incre++;
+//	   	pushQ();
+//   }, 1000);
+//}, 500);
+//
+//setInterval ( function() {
+//	if(total_depth >= 7) {
+//	  popQ();
+//	  total_depth--;
+//	}
+//}, 1000);
 
 </script>
 
